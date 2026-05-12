@@ -1,0 +1,129 @@
+@font-face {
+  font-family: "IntroducingFont";
+  src: url("./assets/fonts/Nohemi-Medium.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PixelFont";
+  src: url("./assets/fonts/Nohemi-Thin.ttf") format("truetype");
+  font-weight: lighter;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "HeaderFont";
+  src: url("./assets/fonts/Nohemi-Light.ttf") format("truetype");
+  font-weight: lighter;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "ButtonFont";
+  src: url("./assets/fonts/Inter/static/Inter_24pt-Light.ttf") format("truetype");
+  font-weight: lighter;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html{
+    scroll-behavior:smooth;
+}
+
+@keyframes floatArrow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(12px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-arrow {
+  animation: floatArrow 2s ease-in-out infinite;
+}
+
+.intro-text{
+  font-size:72px;
+  font-weight:700;
+
+  color: black;
+  -webkit-text-stroke: 2px black;
+
+  /* erase mask */
+  -webkit-mask-image: linear-gradient(to left, black 100%, transparent 100%);
+  mask-image: linear-gradient(to left, black 100%, transparent 100%);
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  transition: mask-size 0.1s linear;
+}
+
+/* DARK MODE */
+
+.dark .intro-text{
+  color:white;
+  -webkit-text-stroke:1px white;
+}
+
+
+@keyframes floatHeart {
+
+0%{
+transform:translateY(0) scale(0.8);
+opacity:1;
+}
+
+100%{
+transform:translateY(-60px) scale(1.4);
+opacity:0;
+}
+
+}
+
+.animate-floatHeart{
+animation:floatHeart 0.9s ease-out forwards;
+}
+
+
+@keyframes slideIn {
+from { transform: translateX(20px); opacity:0 }
+to { transform: translateX(0); opacity:1 }
+}
+
+.animate-slideIn {
+animation: slideIn 0.25s ease;
+}
+
+
+body{
+overflow-x:hidden;
+}
+
+*,
+*::before,
+*::after {
+  cursor: none !important;
+}
+
+button, a, img {
+  cursor: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  cursor: none;
+}
+
+@media (pointer: coarse) {
+  #custom-cursor {
+    display: none !important;
+  }
+}

@@ -1,0 +1,118 @@
+.film-section{
+padding:120px 0;
+background:#ffffff;
+overflow:hidden;
+}
+
+.dark .film-section{
+background:#000000;
+}
+
+.film-title{
+text-align:center;
+font-size:36px;
+margin-bottom:60px;
+font-weight:600;
+}
+
+.film-wrapper{
+width:100%;
+overflow:hidden;
+}
+
+.film-track{
+display:flex;
+width:max-content;
+animation:filmScroll 35s linear infinite;
+}
+
+.film-frame{
+
+position:relative;
+margin-right:30px;
+background:black;
+padding:3px;
+border-radius:6px;
+
+}
+
+/* Light mode frame */
+
+.film-frame{
+
+background:#1E4FBA;
+}
+
+/* Dark mode frame */
+
+.dark .film-frame{
+background:#225CDB;
+}
+
+/* film holes */
+
+.film-frame::before,
+.film-frame::after{
+
+content:"";
+position:absolute;
+left:0;
+right:0;
+height:8px;
+
+background:
+repeating-linear-gradient(
+90deg,
+transparent 0px,
+transparent 12px,
+black 12px,
+black 18px
+);
+
+}
+
+/* Dark mode holes */
+
+.dark .film-frame::before,
+.dark .film-frame::after{
+
+background:
+repeating-linear-gradient(
+90deg,
+transparent 0px,
+transparent 12px,
+rgb(255, 255, 255) 12px,
+white 18px
+);
+
+}
+
+.film-frame::before{
+top:-8px;
+}
+
+.film-frame::after{
+bottom:-8px;
+}
+
+.film-frame img{
+
+width:260px;
+height:170px;
+object-fit:cover;
+display:block;
+border-radius:2px;
+
+}
+
+@keyframes filmScroll{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-50%);
+}
+
+}   

@@ -1,0 +1,15 @@
+insightface
+faiss-cpu
+fastapi
+uvicorn
+opencv-python
+numpy
+pillow
+tqdm
+streamlit
+requests
+scikit-learn
+flask
+requests
+face_recognition
+numpy
