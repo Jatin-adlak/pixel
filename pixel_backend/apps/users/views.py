@@ -444,3 +444,69 @@ def remove_follower(request):
     return Response({
         "message":"Removed"
     })
+
+@api_view(['POST'])
+def update_profile(request):
+
+    try:
+
+        email = request.data.get("email")
+
+        existing = users_collection.find_one(
+            {"email":email}
+        )
+
+        if not existing:
+            return Response(
+                {"error":"User not found"},
+                status=404
+            )
+
+        name = (
+            request.data.get("name")
+            or existing.get("name","")
+        )
+
+        picture = (
+            request.data.get("picture")
+            or existing.get("picture","")
+        )
+
+        # 🔥 ONLY UPDATE FIELDS THAT CHANGED
+
+        update_data = {}
+
+        if name != existing.get("name"):
+            update_data["name"] = name
+
+        if picture != existing.get("picture"):
+            update_data["picture"] = picture
+
+        if update_data:
+
+            users_collection.update_one(
+                {"email":email},
+                {
+                    "$set":update_data
+                }
+            )
+
+        return Response({
+
+            "email":email,
+            "name":name,
+            "picture":picture
+
+        })
+
+    except Exception as e:
+
+        print(
+            "PROFILE UPDATE ERROR:",
+            str(e)
+        )
+
+        return Response(
+            {"error":str(e)},
+            status=500
+        )

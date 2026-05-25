@@ -17,10 +17,21 @@ urlpatterns = [
     path('api/images/', include('apps.images.urls')),
     path('api/newsletters/', include('apps.newsletters.urls')),
     path('api/face/', include('apps.face_search.urls')),
+    path('api/moments/',include('apps.moments.urls')),
+    
 ]
 
 # 🔥 IMPORTANT: SERVE STATIC FILES (PDF + IMAGES)
 urlpatterns += static(
     settings.STATIC_URL,
     document_root=os.path.join(settings.BASE_DIR, 'static')
+)
+
+urlpatterns += static(
+
+settings.MEDIA_URL,
+
+document_root=
+settings.MEDIA_ROOT
+
 )

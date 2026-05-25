@@ -1,7 +1,30 @@
 from django.urls import path
-from .views import create_data, fetch_data
+from .views import *
 
 urlpatterns = [
-    path("create/", create_data),
-    path("", fetch_data),
+
+    # GET ALL
+    path(
+        '',
+        get_newsletters
+    ),
+
+    # UPLOAD
+    path(
+        'upload/',
+        upload_newsletter
+    ),
+
+    # EDIT
+    path(
+        'edit/<str:id>/',
+        edit_newsletter
+    ),
+
+    # DELETE
+    path(
+        'delete/<str:id>/',
+        delete_newsletter
+    )
+
 ]

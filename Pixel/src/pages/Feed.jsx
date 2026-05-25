@@ -291,6 +291,60 @@ c => c.id !== commentId
 })
 )
 }
+
+/* SHARE */
+
+const handleShare = async(post)=>{
+
+const shareLink=
+
+`${window.location.origin}/post/${post._id}`
+
+
+try{
+
+if(
+navigator.share
+){
+
+await navigator.share({
+
+title:
+post.title || "PIXEL Post",
+
+text:
+post.text || "",
+
+url:
+shareLink
+
+})
+
+}
+
+else{
+
+await navigator.clipboard.writeText(
+shareLink
+)
+
+alert(
+"Post link copied ✅"
+)
+
+}
+
+}catch(err){
+
+console.log(
+"Share error:",
+err
+)
+
+}
+
+}
+
 return(
 
 <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white overflow-x-hidden">
@@ -370,8 +424,32 @@ className="w-9 h-9 flex items-center justify-center rounded-full hover:text-blue
 <MessageCircle size={20}/>
 </button>
 
-<button className="w-9 h-9 flex items-center justify-center rounded-full hover:text-blue-600">
-<Share2 size={20}/>
+<button
+
+onClick={()=>
+handleShare(
+post
+)
+}
+
+className="
+w-9
+h-9
+flex
+items-center
+justify-center
+rounded-full
+hover:text-blue-600
+hover:scale-110
+transition
+"
+
+>
+
+<Share2
+size={20}
+/>
+
 </button>
 
 </div>

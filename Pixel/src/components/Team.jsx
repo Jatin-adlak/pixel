@@ -2,6 +2,10 @@ import React from "react"
 import { motion } from "framer-motion"
 import TeamParticles from "./TeamParticles"
 
+import jatin1 from "../assets/team/jatin1.JPG"
+import jatin2 from "../assets/team/jatin2.JPG"
+import brajesh1 from "../assets/team/brajesh1.JPG"
+
 const team = [
 
 {
@@ -10,49 +14,66 @@ title:"Lead Photographer & Designer",
 image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1773512862/Me_CameraPic2_npr7ij.jpg",
 hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1773939795/podcast_pic_xhqbag.png",
 bio:`Notice who isn’t in any of the photos? Yep — that’s me.
-While everyone else is busy posing, I’m the one behind the lens capturing the moment before it disappears.
-As Pixel’s lead photographer and designer, I turn everyday moments into visuals worth remembering.`
+Leads the club’s photography initiatives while bringing creative ideas to life through impactful designs, ensuring a strong visual identity across events and content.`
 },
 
 {
 name:"Aniket Ambadkar",
-title:"<Title>",
+title:"Lead Photographer & Co-Founder",
 image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774449880/DSC08641_stomxz.jpg",
 hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774449880/DSC08794_mlo3yh.jpg",
-bio:`bio`
+bio:`Leads the creative vision of photography initiatives while co-founding and helping build the club’s culture, events, and direction.`
 },
 
 {
 name:"Madhav Maurya",
-title:"<Title>",
+title:"Lead Videographer",
 image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450187/DSC08642_ofvhhe.jpg",
 hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450195/DSC08791_lcgyvv.jpg",
-bio:`bio`
+bio:`Directs and manages video production, ensuring high-quality visual storytelling through planning, shooting, and creative execution.`
 },
 
 {
 name:"Jatin Adlak",
-title:"<Title>",
-image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774449941/DSC08521_2_bdpmwj.jpg",
-hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1773512341/photo3_qtudet.jpg",
-bio:`bio`
+title:"Technical Head & Videographer",
+
+image:jatin1,
+hoverImage:jatin2,
+
+bio:`Handles technical operations and equipment management while contributing to video production and creative content development.`
 },
 
 {
 name:"Ansh Jain",
-title:"<Title>",
+title:"Photographer & Logistics Manager",
 image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774449894/DSC08537_pz1oe8.jpg",
 hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774449907/DSC08639_e7gc31.jpg",
-bio:`bio`
+bio:`Manages photography responsibilities alongside coordinating event logistics and ensuring smooth execution of club activities.`
 },
 
 {
 name:"Brajesh Patel",
-title:"<Title>",
-image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450065/DSC_0934_2_zi4wtr.jpg",
+title:"Videographer & Editor",
+image:brajesh1,
 hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450098/IMG_5196_2_zeglb5.jpg",
-bio:`bio`
-}
+bio:`Captures and edits engaging visual content, transforming raw footage into polished and impactful stories.`
+},
+
+// {
+// name:"Batul Athar",
+// title:"Photographer",
+// image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450065/DSC_0934_2_zi4wtr.jpg",
+// hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450098/IMG_5196_2_zeglb5.jpg",
+// bio:`Captures memorable moments and creative visuals while contributing to the club’s artistic and event coverage efforts.`
+// },
+
+// {
+// name:"Shailaja Mishra",
+// title:"Social Media Manager",
+// image:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450065/DSC_0934_2_zi4wtr.jpg",
+// hoverImage:"https://res.cloudinary.com/dwk329jcv/image/upload/v1774450098/IMG_5196_2_zeglb5.jpg",
+// bio:`Oversees the club’s online presence by creating content strategies, managing platforms, and increasing audience engagement.`
+// }
 
 ]
 

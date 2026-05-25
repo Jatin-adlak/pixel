@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import accept_request, login_user, fetch_users, reject_request, remove_follower, save_post, unfollow , update_username, save_image, search_users, public_profile, follow_request
+from .views import accept_request, login_user, fetch_users, reject_request, remove_follower, save_post, unfollow, update_profile , update_username, save_image, search_users, public_profile, follow_request
 
 urlpatterns = [
     path("login/", login_user),
@@ -14,4 +14,5 @@ urlpatterns = [
     path("reject-request/", reject_request),
     path("unfollow/", unfollow),
     path("remove-follower/",remove_follower),
+    path("update-profile/",update_profile),
 ]

@@ -15,6 +15,7 @@ import Navbar from "./components/Navbar"
 import CustomCursor from "./components/CustomCursor"
 import ThemeToggle from "./components/ThemeToggle"
 import PublicProfile from "./pages/PublicProfile"
+import Moments from "./pages/Moments"
 
 /* 🔥 ADD THESE */
 import Admin from "./pages/Admin"
@@ -48,6 +49,9 @@ function Layout() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/manage" element={<ManageData />} />
         <Route path="/user/:email" element={<PublicProfile />} />
+
+        <Route path="/moments" element={<Moments />} />
+        
       </Routes>
     </>
   )

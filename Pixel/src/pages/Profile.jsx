@@ -52,7 +52,43 @@ if(storedUser){
 
 const parsed = JSON.parse(storedUser)
 
-setUser(parsed)
+/* 🔥 FETCH FRESH USER */
+
+const res = await fetch(
+`http://127.0.0.1:8000/api/users/public/${parsed.email}/`
+)
+
+const freshUser = await res.json()
+
+const updatedUser = {
+
+...parsed,
+
+saved_posts:
+freshUser.saved_posts || [],
+
+saved_images:
+freshUser.saved_images || [],
+
+followers:
+freshUser.followers || [],
+
+following:
+freshUser.following || [],
+
+follow_requests:
+freshUser.follow_requests || []
+
+}
+
+/* 🔥 UPDATE STORAGE */
+
+localStorage.setItem(
+"pixelUser",
+JSON.stringify(updatedUser)
+)
+
+setUser(updatedUser)
 
 if(!editing){
 setNewName(parsed.name || "")
@@ -67,7 +103,7 @@ const res = await fetch(
 
 const allPosts = await res.json()
 
-const savedIds = parsed.saved_posts || []
+const savedIds = updatedUser.saved_posts || []
 
 const filteredPosts = allPosts.filter(
 post => savedIds.includes(post._id)
@@ -88,7 +124,7 @@ image:post.image_url || post.image
 console.error("Saved posts error:", err)
 }
 
-setSavedImages(parsed.saved_images || [])
+setSavedImages(updatedUser.saved_images || [])
 
 }
 
@@ -175,17 +211,52 @@ reader.readAsDataURL(file)
 
 /* SAVE PROFILE */
 
-const saveProfile = () => {
+const saveProfile = async () => {
 
-if(!newName.trim()){
-alert("Username required")
-return
+try{
+
+const updatedName =
+newName?.trim() || user.name
+
+const updatedPicture =
+newPhoto || user.picture
+
+const res = await fetch(
+"http://127.0.0.1:8000/api/users/update-profile/",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+
+email:user.email,
+name:updatedName,
+picture:updatedPicture
+
+})
 }
+)
+
+console.log(
+"Picture length:",
+(newPhoto || user.picture)?.length
+)
+
+console.log(
+"Picture preview:",
+(newPhoto || user.picture)?.slice(0,100)
+)
+
+const data = await res.json()
 
 const updatedUser = {
+
 ...user,
-name:newName,
-picture:newPhoto || user.picture
+
+name:data.name || user.name,
+picture:data.picture || user.picture
+
 }
 
 localStorage.setItem(
@@ -193,15 +264,28 @@ localStorage.setItem(
 JSON.stringify(updatedUser)
 )
 
-window.dispatchEvent(new Event("storage"))
-window.dispatchEvent(new Event("userChanged"))
+window.dispatchEvent(
+new Event("storage")
+)
+
+window.dispatchEvent(
+new Event("userChanged")
+)
 
 setUser(updatedUser)
 
 setEditing(false)
 
+}catch(err){
+
+console.error(
+"Profile save error:",
+err
+)
+
 }
 
+}
 /* CANCEL EDIT */
 
 const cancelEdit = () => {

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'apps.images',
     "apps.newsletters",
     'apps.face_search',
+    'apps.moments',
 ]
 
 MIDDLEWARE = [
@@ -129,7 +130,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+MEDIA_URL="/media/"
+MEDIA_ROOT=BASE_DIR/"media"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

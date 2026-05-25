@@ -383,6 +383,13 @@ className="hover:text-blue-600 transition text-sm md:text-base"
 Feed
 </Link>
 
+{ <Link
+to="/moments"
+className="hover:text-blue-600 transition text-sm md:text-base"
+>
+Moments
+</Link> }
+
 <Link
 to="/gallery"
 className="hover:text-blue-600 transition text-sm md:text-base"

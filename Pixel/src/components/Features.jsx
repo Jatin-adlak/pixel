@@ -1,52 +1,267 @@
-export default function Features() {
+import { motion } from "framer-motion"
 
-  const features = [
-    {
-      title: "Event Galleries",
-      desc: "Create events and collect photos from everyone."
-    },
-    {
-      title: "Instant Upload",
-      desc: "Participants upload media instantly."
-    },
-    {
-      title: "Smart Organization",
-      desc: "Automatically organized by event."
-    }
-  ]
+const features=[
 
-  return (
+{
+icon:"📷",
+title:"Photography Feed",
+desc:"Share photographs and engage through interactions."
+},
 
-    <section className="py-32 bg-gray-50">
+{
+icon:"🎥",
+title:"Moments",
+desc:"Upload cinematic reels and visual stories."
+},
 
-      <h2 className="text-4xl font-bold text-center mb-16">
-        Features
-      </h2>
+{
+icon:"🔍",
+title:"AI Face Search",
+desc:"Locate your photos instantly using AI."
+},
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 px-10">
+{
+icon:"📰",
+title:"Newsletter",
+desc:"Read updates and creative stories."
+},
 
-        {features.map((feature, i) => (
+{
+icon:"🖼️",
+title:"Gallery",
+desc:"Explore captured memories and collections."
+},
 
-          <div
-            key={i}
-            className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-xl transition"
-          >
+{
+icon:"👥",
+title:"Community",
+desc:"Follow creators and build connections."
+},
 
-            <h3 className="text-xl font-semibold mb-4">
-              {feature.title}
-            </h3>
+{
+icon:"❤️",
+title:"Interactions",
+desc:"Like, comment, share and engage."
+},
 
-            <p className="text-gray-500">
-              {feature.desc}
-            </p>
+{
+icon:"📅",
+title:"Events",
+desc:"Stay updated with workshops and activities."
+}
 
-          </div>
+]
 
-        ))}
+export default function Features(){
 
-      </div>
+return(
 
-    </section>
+<section className="
+relative
+py-32
+bg-white
+dark:bg-black
+overflow-hidden
+">
 
-  )
+{/* Navy glow */}
+
+<div className="
+absolute
+top-0
+left-1/2
+-translate-x-1/2
+
+w-[800px]
+h-[800px]
+
+rounded-full
+
+bg-blue-900/10
+
+blur-[180px]
+"/>
+
+<div className="
+relative
+z-10
+
+max-w-7xl
+mx-auto
+px-8
+">
+
+<motion.div
+
+initial={{
+opacity:0,
+y:30
+}}
+
+whileInView={{
+opacity:1,
+y:0
+}}
+
+transition={{
+duration:0.7
+}}
+
+viewport={{
+once:true
+}}
+
+>
+
+<p className="
+text-center
+text-blue-500
+tracking-[6px]
+uppercase
+mb-4
+text-sm
+">
+
+Explore Pixel
+
+</p>
+
+<h2 className="
+text-center
+text-5xl
+font-headersfont
+mb-6
+">
+
+Everything In One Place
+
+</h2>
+
+<p className="
+max-w-2xl
+mx-auto
+text-center
+opacity-60
+leading-8
+mb-20
+">
+
+Photography, community, AI and storytelling
+combined into one platform.
+
+</p>
+
+</motion.div>
+
+
+<div className="
+grid
+md:grid-cols-2
+lg:grid-cols-4
+gap-6
+">
+
+{
+
+features.map((f,i)=>(
+
+<motion.div
+
+key={i}
+
+initial={{
+opacity:0,
+y:30
+}}
+
+whileInView={{
+opacity:1,
+y:0
+}}
+
+viewport={{
+once:true
+}}
+
+transition={{
+duration:0.4,
+delay:i*0.05
+}}
+
+whileHover={{
+y:-6
+}}
+
+className="
+
+group
+
+rounded-3xl
+
+p-7
+
+bg-neutral-100
+dark:bg-neutral-950
+
+border
+
+border-neutral-200
+dark:border-neutral-800
+
+transition-all
+duration-500
+
+hover:border-blue-500/30
+
+hover:shadow-[0_0_30px_rgba(37,99,235,0.15)]
+
+"
+
+>
+
+<div className="
+text-3xl
+mb-5
+">
+
+{f.icon}
+
+</div>
+
+
+<h3 className="
+font-medium
+text-lg
+mb-3
+">
+
+{f.title}
+
+</h3>
+
+
+<p className="
+text-sm
+opacity-60
+leading-7
+">
+
+{f.desc}
+
+</p>
+
+</motion.div>
+
+))
+
+}
+
+</div>
+
+</div>
+
+</section>
+
+)
+
 }

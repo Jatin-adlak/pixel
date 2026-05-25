@@ -100,9 +100,14 @@ export const deleteImage = async (fileId) => {
 
 /* ================= NEWSLETTER ================= */
 
-export const getNewsletters = async () => {
-  const res = await fetch(`${BASE_URL}/newsletters/`)
-  return res.json()
+export const getNewsletters = async()=>{
+
+const res = await fetch(
+"http://127.0.0.1:8000/api/newsletters/"
+)
+
+return await res.json()
+
 }
 
 
@@ -122,4 +127,160 @@ export const updateUsername = async (data) => {
   }
 
   return res.json()
+}
+
+/* 🔥 MOMENTS */
+
+export const getMoments = async()=>{
+
+try{
+
+const res = await fetch(
+`${BASE_URL}/moments/`
+)
+
+return await res.json()
+
+}catch(err){
+
+console.log(
+"GET MOMENTS ERROR:",
+err
+)
+
+return []
+
+}
+
+}
+
+
+export const createMoment = async(formData)=>{
+
+try{
+
+const res = await fetch(
+
+`${BASE_URL}/moments/create/`,
+
+{
+method:"POST",
+body:formData
+}
+
+)
+
+return await res.json()
+
+}catch(err){
+
+console.log(
+"CREATE MOMENT ERROR:",
+err
+)
+
+}
+
+}
+
+
+export const deleteMoment = async(id)=>{
+
+try{
+
+const res = await fetch(
+
+`${BASE_URL}/moments/delete/${id}/`,
+
+{
+method:"DELETE"
+}
+
+)
+
+return await res.json()
+
+}catch(err){
+
+console.log(
+"DELETE MOMENT ERROR:",
+err
+)
+
+}
+
+}
+
+export const likeMoment=async(
+
+momentId,
+email
+
+)=>{
+
+const res=await fetch(
+
+`${BASE_URL}/moments/like/`,
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+moment_id:momentId,
+
+email
+
+})
+
+}
+
+)
+
+return await res.json()
+
+}
+
+
+
+export const commentMoment=async(
+
+momentId,
+email,
+text
+
+)=>{
+
+const res=await fetch(
+
+`${BASE_URL}/moments/comment/`,
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+moment_id:momentId,
+
+email,
+text
+
+})
+
+}
+
+)
+
+return await res.json()
+
 }
