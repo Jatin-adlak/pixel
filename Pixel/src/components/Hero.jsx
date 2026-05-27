@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom"
 
 export default function Hero(){
 
-const scrollToFilmroll = () => {
-  document.getElementById("filmroll").scrollIntoView({
+const scrollToFeatures = () => {
+  document.getElementById("features").scrollIntoView({
     behavior: "smooth"
   })
 }
@@ -141,7 +141,7 @@ Learn More
 <div className="absolute left-1/2 -translate-x-1/2 top-[72%]">
 
 <button
-onClick={scrollToFilmroll}
+onClick={scrollToFeatures}
 className="float-arrow text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
 <ChevronDown size={38} color="#225CDB" />
 </button>

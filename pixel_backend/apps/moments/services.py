@@ -2,10 +2,10 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 client = MongoClient(
-"mongodb://localhost:27017/"
+"mongodb+srv://pixeladmin:Pixel%402026@cluster0.abazyvl.mongodb.net/"
 )
 
-db = client["pixel"]
+db = client["pixel_db"]
 
 moments_collection = db["moments"]
 

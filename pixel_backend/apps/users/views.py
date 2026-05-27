@@ -25,43 +25,144 @@ def login_user(request):
     picture = request.data.get("picture")
 
     # ❌ VALIDATION
+
     if not email:
-        return Response({"error": "Email is required"}, status=400)
+        return Response(
+            {"error":"Email is required"},
+            status=400
+        )
+
+    email = email.strip().lower()
+
 
     try:
+
         domain = email.split("@")[1]
+
     except:
-        return Response({"error": "Invalid email format"}, status=400)
+
+        return Response(
+            {"error":"Invalid email format"},
+            status=400
+        )
+
 
     # 🔒 ALLOW ADMIN OR DOMAIN USERS
-    if email not in ADMIN_EMAILS and domain not in ALLOWED_DOMAINS:
-        return Response({"error": "Unauthorized domain"}, status=403)
 
-    # ✅ CREATE / FETCH USER
-    user = create_user({
-        "email": email,
-        "name": name,
-        "picture": picture
+    admin_emails = [
+
+        x.strip().lower()
+
+        for x in ADMIN_EMAILS
+
+    ]
+
+    if (
+
+        email not in admin_emails
+
+        and
+
+        domain not in ALLOWED_DOMAINS
+
+    ):
+
+        return Response(
+            {"error":"Unauthorized domain"},
+            status=403
+        )
+
+
+    # 🔥 CREATE USER IF NOT EXISTS
+
+    create_user({
+
+        "email":email,
+        "name":name,
+        "picture":picture
+
     })
 
-    if not user or "error" in user:
-        return Response({"error": "User creation failed"}, status=400)
 
-    # 🔥 ADD ADMIN FLAG
-    is_admin = email in ADMIN_EMAILS
+    # 🔥 ALWAYS FETCH LATEST USER
 
-    # ✅ FINAL RESPONSE
+    user = users_collection.find_one({
+
+        "email":email
+
+    })
+
+
+    if not user:
+
+        return Response(
+            {"error":"User creation failed"},
+            status=400
+        )
+
+
+    # 🔥 ADMIN CHECK
+
+    is_admin = (
+
+        email in admin_emails
+
+    )
+
+    print(
+        "ADMIN STATUS:",
+        email,
+        is_admin
+    )
+
+
     return Response({
-        "_id": str(user.get("_id")),
-        "email": user.get("email"),
-        "name": user.get("name"),
-        "picture": user.get("picture"),
-        "isAdmin": is_admin,
-        "saved_posts": user.get("saved_posts", []),
-        "saved_images": user.get("saved_images", []),
-        "followers": user.get("followers", []),
-        "following": user.get("following", []),
-        "follow_requests": user.get("follow_requests", [])
+
+        "_id":
+            str(user["_id"]),
+
+        "email":
+            user.get("email"),
+
+        "name":
+            user.get("name"),
+
+        "picture":
+            user.get("picture"),
+
+        "isAdmin":
+            is_admin,
+
+        "saved_posts":
+            user.get(
+                "saved_posts",
+                []
+            ),
+
+        "saved_images":
+            user.get(
+                "saved_images",
+                []
+            ),
+
+        "followers":
+            user.get(
+                "followers",
+                []
+            ),
+
+        "following":
+            user.get(
+                "following",
+                []
+            ),
+
+        "follow_requests":
+            user.get(
+                "follow_requests",
+                []
+            )
+
     })
 
 
@@ -224,6 +325,11 @@ def public_profile(request, email):
 
             "domain": user.get("domain"),
             "ring": user.get("ring"),
+
+            # 🔥 FIX
+            "isAdmin":
+                user.get("email")
+                in ADMIN_EMAILS,
 
             # 🔥 SAVED
             "saved_posts":
@@ -457,56 +563,125 @@ def update_profile(request):
         )
 
         if not existing:
+
             return Response(
                 {"error":"User not found"},
                 status=404
             )
 
-        name = (
+        name=(
+
             request.data.get("name")
-            or existing.get("name","")
+
+            or existing.get(
+                "name",
+                ""
+            )
+
         )
 
-        picture = (
+        picture=(
+
             request.data.get("picture")
-            or existing.get("picture","")
+
+            or existing.get(
+                "picture",
+                ""
+            )
+
         )
 
-        # 🔥 ONLY UPDATE FIELDS THAT CHANGED
-
-        update_data = {}
+        update_data={}
 
         if name != existing.get("name"):
-            update_data["name"] = name
+
+            update_data["name"]=name
 
         if picture != existing.get("picture"):
-            update_data["picture"] = picture
+
+            update_data["picture"]=picture
+
 
         if update_data:
 
             users_collection.update_one(
+
                 {"email":email},
+
                 {
                     "$set":update_data
                 }
+
             )
+
 
         return Response({
 
-            "email":email,
-            "name":name,
-            "picture":picture
+            "_id":
+                str(
+                    existing["_id"]
+                ),
+
+            "email":
+                email,
+
+            "name":
+                name,
+
+            "picture":
+                picture,
+
+            # 🔥 FIX
+            "isAdmin":
+                email
+                in ADMIN_EMAILS,
+
+            "saved_posts":
+                existing.get(
+                    "saved_posts",
+                    []
+                ),
+
+            "saved_images":
+                existing.get(
+                    "saved_images",
+                    []
+                ),
+
+            "followers":
+                existing.get(
+                    "followers",
+                    []
+                ),
+
+            "following":
+                existing.get(
+                    "following",
+                    []
+                ),
+
+            "follow_requests":
+                existing.get(
+                    "follow_requests",
+                    []
+                )
 
         })
 
     except Exception as e:
 
         print(
+
             "PROFILE UPDATE ERROR:",
+
             str(e)
+
         )
 
         return Response(
+
             {"error":str(e)},
+
             status=500
+
         )

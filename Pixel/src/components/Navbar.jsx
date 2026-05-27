@@ -398,6 +398,13 @@ Gallery
 </Link>
 
 <Link
+to="/spotlight"
+className="hover:text-blue-600 transition text-sm md:text-base"
+>
+Spotlight
+</Link>
+
+<Link
 to="/newsletter"
 className="hover:text-blue-600 transition text-sm md:text-base"
 >

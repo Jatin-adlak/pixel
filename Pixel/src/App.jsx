@@ -16,6 +16,7 @@ import CustomCursor from "./components/CustomCursor"
 import ThemeToggle from "./components/ThemeToggle"
 import PublicProfile from "./pages/PublicProfile"
 import Moments from "./pages/Moments"
+import Spotlight from "./pages/Spotlight"
 
 /* 🔥 ADD THESE */
 import Admin from "./pages/Admin"
@@ -51,6 +52,8 @@ function Layout() {
         <Route path="/user/:email" element={<PublicProfile />} />
 
         <Route path="/moments" element={<Moments />} />
+
+        <Route path="/spotlight" element={<Spotlight/>} />
         
       </Routes>
     </>

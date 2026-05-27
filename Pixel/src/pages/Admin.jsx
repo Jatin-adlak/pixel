@@ -48,6 +48,22 @@ export default function Admin() {
 
   const [momentEditId,setMomentEditId]=useState(null)
 
+//  SPOTLIGHT 
+
+  const [spotlightName,setSpotlightName]=useState("")
+  const [spotlightDescription,setSpotlightDescription]=useState("")
+  const [spotlightDate,setSpotlightDate]=useState("")
+  const [spotlightTime,setSpotlightTime]=useState("")
+  const [spotlightVenue,setSpotlightVenue]=useState("")
+  const [spotlightGuests,setSpotlightGuests]=useState("")
+  const [spotlightPoster,setSpotlightPoster]=useState("")
+  const [spotlights,setSpotlights]=useState([])
+  const [spotlightEditId,setSpotlightEditId]=useState(null)
+
+
+  const [spotlightFormLink,setSpotlightFormLink]=useState("")
+
+
   /* ADMIN PROTECTION */
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("pixelUser"))
@@ -699,6 +715,284 @@ console.log(err)
 
 }
 
+/* ---------------- SPOTLIGHT ---------------- */
+
+/* LOAD */
+
+const loadSpotlights = async()=>{
+
+try{
+
+const res=await fetch(
+"http://127.0.0.1:8000/api/spotlight/"
+)
+
+const data=await res.json()
+
+setSpotlights(data)
+
+}catch(err){
+
+console.log(err)
+
+}
+
+}
+
+
+/* LOAD ON START */
+
+useEffect(()=>{
+
+loadSpotlights()
+
+},[])
+
+
+/* CREATE + UPDATE */
+
+const uploadSpotlight = async()=>{
+
+if(
+
+!spotlightName ||
+!spotlightDescription ||
+!spotlightDate ||
+!spotlightTime ||
+!spotlightVenue ||
+!spotlightGuests ||
+(!spotlightPoster && !spotlightEditId)
+
+){
+
+alert(
+"Fill all required fields"
+)
+
+return
+
+}
+
+try{
+
+const formData=new FormData()
+
+formData.append(
+"name",
+spotlightName
+)
+
+formData.append(
+"description",
+spotlightDescription
+)
+
+formData.append(
+"date",
+spotlightDate
+)
+
+formData.append(
+"time",
+spotlightTime
+)
+
+formData.append(
+"venue",
+spotlightVenue
+)
+
+formData.append(
+"guests",
+spotlightGuests
+)
+
+formData.append(
+"form_link",
+spotlightFormLink
+)
+
+if(spotlightPoster){
+
+formData.append(
+"poster",
+spotlightPoster
+)
+
+}
+
+
+const url=
+
+spotlightEditId
+
+?
+
+`http://127.0.0.1:8000/api/spotlight/edit/${spotlightEditId}/`
+
+:
+
+"http://127.0.0.1:8000/api/spotlight/upload/"
+
+
+const method=
+
+spotlightEditId
+
+?
+
+"PUT"
+
+:
+
+"POST"
+
+
+const res=await fetch(
+
+url,
+
+{
+
+method,
+body:formData
+
+}
+
+)
+
+const data=await res.json()
+
+console.log(data)
+
+if(!res.ok){
+
+alert(
+data.error || "Failed"
+)
+
+return
+
+}
+
+
+alert(
+
+spotlightEditId
+
+?
+
+"Spotlight Updated ✅"
+
+:
+
+"Spotlight Created ✅"
+
+)
+
+
+setSpotlightName("")
+setSpotlightDescription("")
+setSpotlightDate("")
+setSpotlightTime("")
+setSpotlightVenue("")
+setSpotlightGuests("")
+setSpotlightFormLink("")
+setSpotlightPoster(null)
+setSpotlightEditId(null)
+
+loadSpotlights()
+
+}catch(err){
+
+console.log(err)
+
+}
+
+}
+
+
+/* EDIT */
+
+const editSpotlight=(spotlight)=>{
+
+setSpotlightName(
+spotlight.name
+)
+
+setSpotlightDescription(
+spotlight.description
+)
+
+setSpotlightDate(
+spotlight.date
+)
+
+setSpotlightTime(
+spotlight.time
+)
+
+setSpotlightVenue(
+spotlight.venue
+)
+
+setSpotlightGuests(
+
+spotlight.guests?.join(
+", "
+)
+
+)
+
+setSpotlightFormLink(
+
+spotlight.form_link
+
+||
+
+""
+
+)
+
+setSpotlightEditId(
+spotlight._id
+)
+
+}
+
+
+/* DELETE */
+
+const deleteSpotlight=async(id)=>{
+
+if(
+!window.confirm(
+"Delete Spotlight?"
+)
+)return
+
+try{
+
+await fetch(
+
+`http://127.0.0.1:8000/api/spotlight/delete/${id}/`,
+
+{
+method:"DELETE"
+}
+
+)
+
+loadSpotlights()
+
+}catch(err){
+
+console.log(err)
+
+}
+
+}
+
   return (
 
 <div className="
@@ -798,7 +1092,8 @@ overflow-x-auto
 "gallery",
 "posts",
 "newsletter",
-"moments"
+"moments",
+"spotlight"
 ].map(tab=>(
 
 <button
@@ -1733,6 +2028,286 @@ rounded-xl
 
 Delete
 
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+)}
+
+{/* SPOTLIGHT */}
+
+{activeTab==="spotlight" && (
+
+<div className="
+bg-white dark:bg-neutral-900
+rounded-3xl
+p-6 shadow-lg
+">
+
+<h2 className="
+text-2xl
+font-bold
+mb-8
+">
+
+Spotlight Management
+
+</h2>
+
+
+<div className="
+max-w-xl
+space-y-4
+">
+
+<input
+value={spotlightName}
+onChange={(e)=>
+setSpotlightName(
+e.target.value
+)
+}
+placeholder="Event Name"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+
+<textarea
+value={spotlightDescription}
+onChange={(e)=>
+setSpotlightDescription(
+e.target.value
+)
+}
+placeholder="Description"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+
+<input
+type="date"
+value={spotlightDate}
+onChange={(e)=>
+setSpotlightDate(
+e.target.value
+)
+}
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+
+<input
+value={spotlightTime}
+onChange={(e)=>
+setSpotlightTime(
+e.target.value
+)
+}
+placeholder="Time"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+
+<input
+value={spotlightVenue}
+onChange={(e)=>
+setSpotlightVenue(
+e.target.value
+)
+}
+placeholder="Venue"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+
+<input
+value={spotlightGuests}
+onChange={(e)=>
+setSpotlightGuests(
+e.target.value
+)
+}
+placeholder="Guests (comma separated)"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+<input
+value={spotlightFormLink}
+onChange={(e)=>
+setSpotlightFormLink(
+e.target.value
+)
+}
+placeholder="
+Google Form Link (Optional)
+"
+className="
+w-full p-3
+rounded-xl
+border
+dark:text-black
+"
+/>
+
+<input
+type="file"
+accept="image/*"
+onChange={(e)=>
+setSpotlightPoster(
+e.target.files[0]
+)
+}
+/>
+
+
+<button
+onClick={uploadSpotlight}
+className="
+bg-blue-600
+text-white
+px-6 py-3
+rounded-xl
+"
+>
+
+{
+spotlightEditId
+?
+"Update Spotlight"
+:
+"Create Spotlight"
+}
+
+</button>
+
+</div>
+
+
+<div className="
+grid
+md:grid-cols-2
+lg:grid-cols-3
+gap-6
+mt-10
+">
+
+{spotlights.map(s=>(
+
+<div
+key={s._id}
+className="
+bg-neutral-100
+dark:bg-neutral-800
+rounded-3xl
+overflow-hidden
+shadow-lg
+"
+>
+
+<img
+src={`http://127.0.0.1:8000${s.poster}`}
+className="
+w-full
+h-48
+object-cover
+"
+/>
+
+<div className="p-5">
+
+<h3 className="
+font-semibold
+text-lg
+">
+
+{s.name}
+
+</h3>
+
+<p className="
+text-sm
+text-gray-500
+mt-2
+">
+
+{s.date}
+
+</p>
+
+
+<div className="
+flex gap-3
+mt-5
+">
+
+<button
+onClick={()=>
+editSpotlight(s)
+}
+className="
+bg-yellow-500
+text-white
+px-4 py-2
+rounded-xl
+"
+>
+Edit
+</button>
+
+<button
+onClick={()=>
+deleteSpotlight(
+s._id
+)
+}
+className="
+bg-red-600
+text-white
+px-4 py-2
+rounded-xl
+"
+>
+Delete
 </button>
 
 </div>

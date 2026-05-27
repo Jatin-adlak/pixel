@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/newsletters/', include('apps.newsletters.urls')),
     path('api/face/', include('apps.face_search.urls')),
     path('api/moments/',include('apps.moments.urls')),
+    path('api/spotlight/',include('apps.spotlight.urls')),
     
 ]
 

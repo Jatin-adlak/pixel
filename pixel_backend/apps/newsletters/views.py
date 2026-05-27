@@ -8,10 +8,10 @@ from django.conf import settings
 from pymongo import MongoClient
 
 client = MongoClient(
-"mongodb://localhost:27017/"
+"mongodb+srv://pixeladmin:Pixel%402026@cluster0.abazyvl.mongodb.net/"
 )
 
-db = client["pixel"]
+db = client["pixel_db"]
 
 newsletters_collection = db["newsletters"]
 

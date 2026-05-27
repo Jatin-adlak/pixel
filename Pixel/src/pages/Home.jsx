@@ -3,6 +3,7 @@ import FilmRoll from "../components/FilmRoll"
 import Features from "../components/Features"
 import Team from "../components/Team"
 import Footer from "../components/Footer"
+import About from "../components/About"
 
 export default function Home(){
 
@@ -17,6 +18,8 @@ min-h-screen
 ">
 
 <Hero/>
+
+<About/>
 
 <FilmRoll/>
 
