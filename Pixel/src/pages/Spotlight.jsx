@@ -26,7 +26,7 @@ const loadSpotlights=async()=>{
 try{
 
 const res=await fetch(
-"http://127.0.0.1:8000/api/spotlight/"
+"${import.meta.env.VITE_API_URL}api/spotlight/"
 )
 
 const data=await res.json()
@@ -206,7 +206,7 @@ items-stretch
 
 <img
 
-src={`http://127.0.0.1:8000${event.poster}`}
+src={`${import.meta.env.VITE_API_URL}${event.poster}`}
 
 alt={event.name}
 

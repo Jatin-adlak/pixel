@@ -33,7 +33,7 @@ getEvents()
 
     // ✅ PRIORITY 3: file_id → build URL
     else if (event.cover) {
-      coverUrl = `http://127.0.0.1:8000/api/events/cover/${event.cover}/`
+      coverUrl = `${import.meta.env.VITE_API_URL}api/events/cover/${event.cover}/`
     }
 
     return {

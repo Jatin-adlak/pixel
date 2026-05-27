@@ -147,7 +147,7 @@ console.log(err)
 
 const videoUrl=
 
-`http://127.0.0.1:8000${currentMoment.video_url}`
+`${import.meta.env.VITE_API_URL}${currentMoment.video_url}`
 
 
 return(
@@ -185,7 +185,7 @@ cursor-pointer
 
 <img
 
-src={`http://127.0.0.1:8000${currentMoment.cover_url}`}
+src={`${import.meta.env.VITE_API_URL}${currentMoment.cover_url}`}
 
 onError={(e)=>{
 

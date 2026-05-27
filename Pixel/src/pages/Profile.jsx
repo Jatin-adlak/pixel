@@ -55,7 +55,7 @@ const parsed = JSON.parse(storedUser)
 /* 🔥 FETCH FRESH USER */
 
 const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${parsed.email}/`
+`${import.meta.env.VITE_API_URL}api/users/public/${parsed.email}/`
 )
 
 const freshUser = await res.json()
@@ -98,7 +98,7 @@ setNewPhoto(parsed.picture || "")
 try{
 
 const res = await fetch(
-"http://127.0.0.1:8000/api/posts/"
+"${import.meta.env.VITE_API_URL}api/posts/"
 )
 
 const allPosts = await res.json()
@@ -222,7 +222,7 @@ const updatedPicture =
 newPhoto || user.picture
 
 const res = await fetch(
-"http://127.0.0.1:8000/api/users/update-profile/",
+"${import.meta.env.VITE_API_URL}api/users/update-profile/",
 {
 method:"POST",
 headers:{
@@ -329,7 +329,7 @@ const users = await Promise.all(
 emails.map(async (email)=>{
 
 const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${email}/`
+`${import.meta.env.VITE_API_URL}api/users/public/${email}/`
 )
 
 return await res.json()
@@ -875,7 +875,7 @@ e.stopPropagation()
 try{
 
 await fetch(
-"http://127.0.0.1:8000/api/users/remove-follower/",
+"${import.meta.env.VITE_API_URL}api/users/remove-follower/",
 {
 method:"POST",
 headers:{

@@ -11,6 +11,11 @@ from config.db import fs, images_collection
 
 import os
 
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "http://127.0.0.1:8000"
+    )
+
 
 # 🔥 MULTIPLE IMAGE UPLOAD (FULL ORIGINAL + FIXES)
 @api_view(['POST'])
@@ -61,7 +66,7 @@ def upload_image(request):
 
                     uploaded_images.append({
                         "file_id": file_id,
-                        "url": f"http://127.0.0.1:8000/api/images/file/{file_id}/"
+                        "url": f"{BACKEND_URL}/api/images/file/{file_id}/"
                     })
 
                     print("✅ Saved:", file_id)
@@ -116,7 +121,7 @@ def fetch_images(request):
         result = [
             {
                 "file_id": str(img.get("file_id")),
-                "url": f"http://127.0.0.1:8000/api/images/file/{img.get('file_id')}/"
+                "url": f"{BACKEND_URL}/api/images/file/{img.get('file_id')}/"
             }
             for img in images
             if img.get("file_id")

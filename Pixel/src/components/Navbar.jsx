@@ -32,7 +32,7 @@ try{
 const parsed = JSON.parse(storedUser)
 
 const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${parsed.email}/`
+`${import.meta.env.VITE_API_URL}api/users/public/${parsed.email}/`
 )
 
 const freshUser = await res.json()
@@ -94,7 +94,7 @@ return
 try{
 
 const res = await fetch(
-`http://127.0.0.1:8000/api/users/search/?q=${value}`
+`${import.meta.env.VITE_API_URL}api/users/search/?q=${value}`
 )
 
 const data = await res.json()
@@ -114,7 +114,7 @@ const acceptRequest = async (followerEmail) => {
 try{
 
 await fetch(
-"http://127.0.0.1:8000/api/users/accept-request/",
+"${import.meta.env.VITE_API_URL}api/users/accept-request/",
 {
 method:"POST",
 headers:{
@@ -173,7 +173,7 @@ const rejectRequest = async (followerEmail) => {
 try{
 
 await fetch(
-"http://127.0.0.1:8000/api/users/reject-request/",
+"${import.meta.env.VITE_API_URL}api/users/reject-request/",
 {
 method:"POST",
 headers:{

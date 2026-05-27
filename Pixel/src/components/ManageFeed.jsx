@@ -10,7 +10,7 @@ const [posts,setPosts] = useState([])
 /* LOAD POSTS */
 
 const loadPosts = async () => {
-const res = await fetch("http://localhost:8000/api/posts/")
+const res = await fetch("${import.meta.env.VITE_API_URL}/api/posts/")
 const data = await res.json()
 setPosts(data)
 }
@@ -39,7 +39,7 @@ formData.append("image", image)
 formData.append("title", title)
 formData.append("caption", caption)
 
-await fetch("http://localhost:8000/api/posts/",{
+await fetch("${import.meta.env.VITE_API_URL}/api/posts/",{
 method:"POST",
 body:formData
 })
@@ -56,7 +56,7 @@ loadPosts()
 /* DELETE */
 
 const deletePost = async (id)=>{
-await fetch(`http://localhost:8000/api/posts/${id}/`,{
+await fetch(`${import.meta.env.VITE_API_URL}/api/posts/${id}/`,{
 method:"DELETE"
 })
 loadPosts()
