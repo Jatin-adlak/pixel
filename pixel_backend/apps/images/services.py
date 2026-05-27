@@ -8,6 +8,11 @@ from datetime import datetime
 import os
 import uuid
 
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "http://127.0.0.1:8000"
+    )
+
 DATASET_DIR = "dataset"
 
 # 🔥 Face service URL
@@ -251,7 +256,7 @@ def get_images(event_id):
                 ),
 
                 "url":
-                f"/api/images/file/{img.get('file_id')}/",
+                f"{BACKEND_URL}/api/images/file/{img.get('file_id')}/",
 
                 "has_face":
                 img.get(
