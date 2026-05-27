@@ -48,7 +48,7 @@ currentUser?.email
 )
 
 const postsRes = await fetch(
-"${import.meta.env.VITE_API_URL}api/posts/"
+`${import.meta.env.VITE_API_URL}api/posts/`
 )
 
 const allPosts = await postsRes.json()
@@ -90,7 +90,7 @@ return
 try{
 
 const res = await fetch(
-"${import.meta.env.VITE_API_URL}api/users/follow-request/",
+`${import.meta.env.VITE_API_URL}api/users/follow-request/`,
 {
 method:"POST",
 headers:{
@@ -160,7 +160,7 @@ const unfollow = async () => {
 try{
 
 await fetch(
-"${import.meta.env.VITE_API_URL}api/users/unfollow/",
+`${import.meta.env.VITE_API_URL}api/users/unfollow/`,
 {
 method:"POST",
 headers:{

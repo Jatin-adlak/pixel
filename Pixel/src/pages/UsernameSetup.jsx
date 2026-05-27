@@ -32,7 +32,7 @@ const handleContinue = async () => {
 
   try {
 
-    await fetch("${import.meta.env.VITE_API_URL}api/users/update-username/", {
+    await fetch(`${import.meta.env.VITE_API_URL}api/users/update-username/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

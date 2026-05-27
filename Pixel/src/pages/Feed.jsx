@@ -58,7 +58,7 @@ return
 try{
 
 const res = await fetch(
-"${import.meta.env.VITE_API_URL}api/users/save-post/",
+`${import.meta.env.VITE_API_URL}api/users/save-post/`,
 {
 method:"POST",
 headers:{

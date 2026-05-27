@@ -80,7 +80,7 @@ return
 try{
 
 const res = await fetch(
-"${import.meta.env.VITE_API_URL}api/users/save-image/",
+`${import.meta.env.VITE_API_URL}api/users/save-image/`,
 {
 method:"POST",
 headers:{

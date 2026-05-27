@@ -98,7 +98,7 @@ setNewPhoto(parsed.picture || "")
 try{
 
 const res = await fetch(
-"${import.meta.env.VITE_API_URL}api/posts/"
+`${import.meta.env.VITE_API_URL}api/posts/`
 )
 
 const allPosts = await res.json()
@@ -222,7 +222,7 @@ const updatedPicture =
 newPhoto || user.picture
 
 const res = await fetch(
-"${import.meta.env.VITE_API_URL}api/users/update-profile/",
+`${import.meta.env.VITE_API_URL}api/users/update-profile/`,
 {
 method:"POST",
 headers:{
@@ -875,7 +875,7 @@ e.stopPropagation()
 try{
 
 await fetch(
-"${import.meta.env.VITE_API_URL}api/users/remove-follower/",
+`${import.meta.env.VITE_API_URL}api/users/remove-follower/`,
 {
 method:"POST",
 headers:{

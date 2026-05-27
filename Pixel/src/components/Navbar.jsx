@@ -114,7 +114,7 @@ const acceptRequest = async (followerEmail) => {
 try{
 
 await fetch(
-"${import.meta.env.VITE_API_URL}api/users/accept-request/",
+`${import.meta.env.VITE_API_URL}api/users/accept-request/`,
 {
 method:"POST",
 headers:{
@@ -173,7 +173,7 @@ const rejectRequest = async (followerEmail) => {
 try{
 
 await fetch(
-"${import.meta.env.VITE_API_URL}api/users/reject-request/",
+`${import.meta.env.VITE_API_URL}api/users/reject-request/`,
 {
 method:"POST",
 headers:{

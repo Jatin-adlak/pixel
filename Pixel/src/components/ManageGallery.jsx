@@ -42,7 +42,7 @@ formData.append("images", file)
 formData.append("event_id", eventId)
 formData.append("uploaded_by", "admin")
 
-await fetch("${import.meta.env.VITE_API_URL}/api/images/upload/",{
+await fetch(`${import.meta.env.VITE_API_URL}/api/images/upload/`,{
 method:"POST",
 body:formData
 })

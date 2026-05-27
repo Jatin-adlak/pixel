@@ -77,7 +77,7 @@ export default function Admin() {
   /* LOAD EVENTS */
   const loadEvents = async () => {
     try {
-      const res = await fetch("${import.meta.env.VITE_API_URL}api/events/")
+      const res = await fetch(`${import.meta.env.VITE_API_URL}api/events/`)
       const data = await res.json()
 
       setEvents(data)
@@ -113,7 +113,7 @@ export default function Admin() {
 
       const url = editingId
         ? `${import.meta.env.VITE_API_URL}api/events/update/${editingId}/`
-        : "${import.meta.env.VITE_API_URL}api/events/add/"
+        : `${import.meta.env.VITE_API_URL}api/events/add/`
 
       const method = editingId ? "PUT" : "POST"
 
@@ -231,7 +231,7 @@ export default function Admin() {
       formData.append("event_id", eventId)
       formData.append("uploaded_by", "admin")
 
-      const res = await fetch("${import.meta.env.VITE_API_URL}api/images/upload/", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}api/images/upload/`, {
         method: "POST",
         body: formData
       })
@@ -251,7 +251,7 @@ export default function Admin() {
   /* ---------------- POSTS ---------------- */
 
   const loadPosts = async () => {
-    const res = await fetch("${import.meta.env.VITE_API_URL}api/posts/")
+    const res = await fetch(`${import.meta.env.VITE_API_URL}api/posts/`)
     const data = await res.json()
     setPosts(data)
   }
@@ -266,7 +266,7 @@ export default function Admin() {
     formData.append("caption", postCaption)
     if (postImage) formData.append("image", postImage)
 
-    const res = await fetch("${import.meta.env.VITE_API_URL}api/posts/create/", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}api/posts/create/`, {
       method: "POST",
       body: formData
     })
@@ -294,7 +294,7 @@ export default function Admin() {
     try {
 
       const res = await fetch(
-        "${import.meta.env.VITE_API_URL}api/newsletters/"
+        `${import.meta.env.VITE_API_URL}api/newsletters/`
       )
 
       const data = await res.json()
@@ -366,7 +366,7 @@ const url = newsletterEditId
 
 ? `${import.meta.env.VITE_API_URL}api/newsletters/edit/${newsletterEditId}/`
 
-: "${import.meta.env.VITE_API_URL}api/newsletters/upload/"
+: `${import.meta.env.VITE_API_URL}api/newsletters/upload/`
 
 
 const method =
@@ -506,7 +506,7 @@ try{
 
 const res = await fetch(
 
-"${import.meta.env.VITE_API_URL}api/moments/"
+`${import.meta.env.VITE_API_URL}api/moments/`
 
 )
 
@@ -590,7 +590,7 @@ const url = momentEditId
 
 :
 
-"${import.meta.env.VITE_API_URL}api/moments/create/"
+`${import.meta.env.VITE_API_URL}api/moments/create/`
 
 
 const method = momentEditId
@@ -724,7 +724,7 @@ const loadSpotlights = async()=>{
 try{
 
 const res=await fetch(
-"${import.meta.env.VITE_API_URL}api/spotlight/"
+`${import.meta.env.VITE_API_URL}api/spotlight/`
 )
 
 const data=await res.json()
@@ -832,7 +832,7 @@ spotlightEditId
 
 :
 
-"${import.meta.env.VITE_API_URL}api/spotlight/upload/"
+`${import.meta.env.VITE_API_URL}api/spotlight/upload/`
 
 
 const method=

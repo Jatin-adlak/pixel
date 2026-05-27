@@ -26,7 +26,7 @@ const loadSpotlights=async()=>{
 try{
 
 const res=await fetch(
-"${import.meta.env.VITE_API_URL}api/spotlight/"
+`${import.meta.env.VITE_API_URL}api/spotlight/`
 )
 
 const data=await res.json()
