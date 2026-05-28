@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.http import StreamingHttpResponse
 from django.http import HttpResponse
 from bson import ObjectId
 
@@ -141,32 +141,21 @@ def fetch_images(request):
 @api_view(['GET'])
 def get_image_file(request, file_id):
     try:
-        file = fs.get(ObjectId(file_id))
+        grid_out = fs.get(ObjectId(file_id))
 
-        content_type = getattr(file, "content_type", None)
-
-        if not content_type:
-            filename = file.filename.lower()
-
-            if filename.endswith(".png"):
-                content_type = "image/png"
-            elif filename.endswith(".webp"):
-                content_type = "image/webp"
-            elif filename.endswith(".jpg") or filename.endswith(".jpeg"):
-                content_type = "image/jpeg"
-            else:
-                content_type = "application/octet-stream"
-
-        return HttpResponse(
-            file.read(),
-            content_type=content_type
+        response = StreamingHttpResponse(
+            grid_out,
+            content_type=grid_out.content_type or "image/jpeg"
         )
 
+        response["Content-Length"] = grid_out.length
+
+        return response
+
     except Exception as e:
-        print("❌ File fetch error:", e)
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        return StreamingHttpResponse(
+            f"Error: {str(e)}",
+            status=500
         )
 
 
