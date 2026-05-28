@@ -1,7 +1,12 @@
 from config.db import spotlight_collection, fs
 from bson import ObjectId
 from datetime import datetime
+import os
 
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "http://127.0.0.1:8000"
+    )
 
 def create_spotlight(data):
 
@@ -22,7 +27,7 @@ def create_spotlight(data):
 
         )
 
-        poster_url=f"/api/images/file/{file_id}/"
+        poster_url=f"{BACKEND_URL}/api/images/file/{file_id}/"
 
 
     item={
@@ -157,7 +162,7 @@ def edit_spotlight(id,data):
 
             "poster"
 
-        ]=f"/api/images/file/{file_id}/"
+        ]=f"{BACKEND_URL}/api/images/file/{file_id}/"
 
 
     spotlight_collection.update_one(
