@@ -139,22 +139,29 @@ def fetch_images(request):
 
 # 🔥 SERVE IMAGE (FULL ORIGINAL SAFE)
 @api_view(['GET'])
+@api_view(['GET'])
 def get_image_file(request, file_id):
     try:
         grid_out = fs.get(ObjectId(file_id))
 
-        response = StreamingHttpResponse(
+        content_type = getattr(
             grid_out,
-            content_type=grid_out.content_type or "image/jpeg"
+            "content_type",
+            "image/jpeg"
         )
 
-        response["Content-Length"] = grid_out.length
+        response = HttpResponse(
+            grid_out.read(),
+            content_type=content_type
+        )
 
         return response
 
     except Exception as e:
-        return StreamingHttpResponse(
-            f"Error: {str(e)}",
+        print("❌ IMAGE FETCH ERROR:", e)
+
+        return Response(
+            {"error": str(e)},
             status=500
         )
 
