@@ -58,7 +58,7 @@ return
 try{
 
 const res = await fetch(
-`${import.meta.env.VITE_API_URL}api/users/save-post/`,
+"http://127.0.0.1:8000/api/users/save-post/",
 {
 method:"POST",
 headers:{
@@ -120,7 +120,7 @@ try{
 
 // 🔥 UPDATE DATABASE
 await fetch(
-`${import.meta.env.VITE_API_URL}api/posts/like/${postId}/`,
+`http://127.0.0.1:8000/api/posts/like/${postId}/`,
 {
 method:"POST",
 headers:{
@@ -213,7 +213,7 @@ try{
 
 // 🔥 SAVE TO DATABASE
 await fetch(
-`${import.meta.env.VITE_API_URL}api/posts/comment/${postId}/`,
+`http://127.0.0.1:8000/api/posts/comment/${postId}/`,
 {
 method:"POST",
 headers:{
@@ -266,7 +266,7 @@ try{
 
 // 🔥 DELETE FROM DATABASE
 await fetch(
-`${import.meta.env.VITE_API_URL}api/posts/comment/delete/${postId}/${commentIndex}/`,
+`http://127.0.0.1:8000/api/posts/comment/delete/${postId}/${commentIndex}/`,
 {
 method:"DELETE"
 }

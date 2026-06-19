@@ -2,6 +2,8 @@ import { useEffect,useState } from "react"
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom"
 
+// id="features"
+
 const features=[
 
 {
@@ -249,7 +251,7 @@ Current Feature
 
 <h3 className="
 text-4xl
-font-medium
+font-headersfont
 mb-6
 leading-tight
 ">

@@ -1,4 +1,4 @@
-const BASE_URL = `${import.meta.env.VITE_API_URL}api`
+const BASE_URL = "http://127.0.0.1:8000/api"
 
 
 /* ================= USERS ================= */
@@ -103,7 +103,7 @@ export const deleteImage = async (fileId) => {
 export const getNewsletters = async()=>{
 
 const res = await fetch(
-`${import.meta.env.VITE_API_URL}api/newsletters/`
+"http://127.0.0.1:8000/api/newsletters/"
 )
 
 return await res.json()

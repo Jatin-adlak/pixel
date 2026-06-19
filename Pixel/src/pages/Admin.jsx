@@ -77,7 +77,7 @@ export default function Admin() {
   /* LOAD EVENTS */
   const loadEvents = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}api/events/`)
+      const res = await fetch("http://127.0.0.1:8000/api/events/")
       const data = await res.json()
 
       setEvents(data)
@@ -112,8 +112,8 @@ export default function Admin() {
       if (cover) formData.append("cover", cover)
 
       const url = editingId
-        ? `${import.meta.env.VITE_API_URL}api/events/update/${editingId}/`
-        : `${import.meta.env.VITE_API_URL}api/events/add/`
+        ? `http://127.0.0.1:8000/api/events/update/${editingId}/`
+        : "http://127.0.0.1:8000/api/events/add/"
 
       const method = editingId ? "PUT" : "POST"
 
@@ -157,7 +157,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}api/events/delete/${id}/`,
+        `http://127.0.0.1:8000/api/events/delete/${id}/`,
         { method: "DELETE" }
       )
 
@@ -177,7 +177,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}api/images/?event_id=${eventId}`
+        `http://127.0.0.1:8000/api/images/?event_id=${eventId}`
       )
 
       const data = await res.json()
@@ -198,7 +198,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}api/images/delete/${fileId}/`,
+        `http://127.0.0.1:8000/api/images/delete/${fileId}/`,
         { method: "DELETE" }
       )
 
@@ -231,7 +231,7 @@ export default function Admin() {
       formData.append("event_id", eventId)
       formData.append("uploaded_by", "admin")
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}api/images/upload/`, {
+      const res = await fetch("http://127.0.0.1:8000/api/images/upload/", {
         method: "POST",
         body: formData
       })
@@ -251,7 +251,7 @@ export default function Admin() {
   /* ---------------- POSTS ---------------- */
 
   const loadPosts = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}api/posts/`)
+    const res = await fetch("http://127.0.0.1:8000/api/posts/")
     const data = await res.json()
     setPosts(data)
   }
@@ -266,7 +266,7 @@ export default function Admin() {
     formData.append("caption", postCaption)
     if (postImage) formData.append("image", postImage)
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}api/posts/create/`, {
+    const res = await fetch("http://127.0.0.1:8000/api/posts/create/", {
       method: "POST",
       body: formData
     })
@@ -281,7 +281,7 @@ export default function Admin() {
   }
 
   const deletePost = async (id) => {
-    await fetch(`${import.meta.env.VITE_API_URL}api/posts/delete/${id}/`, {
+    await fetch(`http://127.0.0.1:8000/api/posts/delete/${id}/`, {
       method: "DELETE"
     })
     loadPosts()
@@ -294,7 +294,7 @@ export default function Admin() {
     try {
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}api/newsletters/`
+        "http://127.0.0.1:8000/api/newsletters/"
       )
 
       const data = await res.json()
@@ -364,9 +364,9 @@ newsletterPdf
 
 const url = newsletterEditId
 
-? `${import.meta.env.VITE_API_URL}api/newsletters/edit/${newsletterEditId}/`
+? `http://127.0.0.1:8000/api/newsletters/edit/${newsletterEditId}/`
 
-: `${import.meta.env.VITE_API_URL}api/newsletters/upload/`
+: "http://127.0.0.1:8000/api/newsletters/upload/"
 
 
 const method =
@@ -467,7 +467,7 @@ try{
 
 const res = await fetch(
 
-`${import.meta.env.VITE_API_URL}api/newsletters/delete/${id}/`,
+`http://127.0.0.1:8000/api/newsletters/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -506,7 +506,7 @@ try{
 
 const res = await fetch(
 
-`${import.meta.env.VITE_API_URL}api/moments/`
+"http://127.0.0.1:8000/api/moments/"
 
 )
 
@@ -586,11 +586,11 @@ const url = momentEditId
 
 ?
 
-`${import.meta.env.VITE_API_URL}api/moments/edit/${momentEditId}/`
+`http://127.0.0.1:8000/api/moments/edit/${momentEditId}/`
 
 :
 
-`${import.meta.env.VITE_API_URL}api/moments/create/`
+"http://127.0.0.1:8000/api/moments/create/"
 
 
 const method = momentEditId
@@ -697,7 +697,7 @@ try{
 
 await fetch(
 
-`${import.meta.env.VITE_API_URL}api/moments/delete/${id}/`,
+`http://127.0.0.1:8000/api/moments/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -724,7 +724,7 @@ const loadSpotlights = async()=>{
 try{
 
 const res=await fetch(
-`${import.meta.env.VITE_API_URL}api/spotlight/`
+"http://127.0.0.1:8000/api/spotlight/"
 )
 
 const data=await res.json()
@@ -828,11 +828,11 @@ spotlightEditId
 
 ?
 
-`${import.meta.env.VITE_API_URL}api/spotlight/edit/${spotlightEditId}/`
+`http://127.0.0.1:8000/api/spotlight/edit/${spotlightEditId}/`
 
 :
 
-`${import.meta.env.VITE_API_URL}api/spotlight/upload/`
+"http://127.0.0.1:8000/api/spotlight/upload/"
 
 
 const method=
@@ -975,7 +975,7 @@ try{
 
 await fetch(
 
-`${import.meta.env.VITE_API_URL}api/spotlight/delete/${id}/`,
+`http://127.0.0.1:8000/api/spotlight/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -1665,7 +1665,7 @@ n.cover
 
 :
 
-`${import.meta.env.VITE_API_URL}${n.cover}`
+`http://127.0.0.1:8000${n.cover}`
 
 }
 className="
@@ -1745,7 +1745,7 @@ n.pdf
 
 :
 
-`${import.meta.env.VITE_API_URL}${n.pdf}`
+`http://127.0.0.1:8000${n.pdf}`
 
 }
 target="_blank"
@@ -1953,7 +1953,7 @@ moment.cover_url
 
 :
 
-`${import.meta.env.VITE_API_URL}${moment.cover_url}`
+`http://127.0.0.1:8000${moment.cover_url}`
 
 }
 className="
@@ -2245,7 +2245,7 @@ shadow-lg
 >
 
 <img
-src={`${import.meta.env.VITE_API_URL}${s.poster}`}
+src={`http://127.0.0.1:8000${s.poster}`}
 className="
 w-full
 h-48

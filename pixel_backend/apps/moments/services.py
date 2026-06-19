@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 client = MongoClient(
-"mongodb+srv://pixeladmin:Pixel%402026@cluster0.abazyvl.mongodb.net/"
+"mongodb://localhost:27017/"
 )
 
 db = client["pixel_db"]

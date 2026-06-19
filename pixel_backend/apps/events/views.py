@@ -9,13 +9,6 @@ from django.http import HttpResponse
 from config.db import fs, events_collection, images_collection
 from .services import create_event, get_events
 
-import os
-
-BACKEND_URL = os.getenv(
-    "BACKEND_URL",
-    "http://127.0.0.1:8000"
-    )
-
 
 # 🔥 CREATE EVENT (WITH COVER IMAGE)
 @api_view(['POST'])
@@ -50,7 +43,7 @@ def add_event(request):
 
         # 🔥 ADD COVER URL IN RESPONSE
         if event.get("cover"):
-            event["cover_url"] = f"{BACKEND_URL}/api/events/cover/{event['cover']}/"
+            event["cover_url"] = f"http://127.0.0.1:8000/api/events/cover/{event['cover']}/"
             event["cover"] = event["cover_url"]   # ✅ IMPORTANT FIX
 
         return Response(event, status=status.HTTP_201_CREATED)
@@ -69,7 +62,7 @@ def fetch_events(request):
         for event in events:
 
             if event.get("cover"):
-                url = f"{BACKEND_URL}/api/events/cover/{event['cover']}/"
+                url = f"http://127.0.0.1:8000/api/events/cover/{event['cover']}/"
                 event["cover_url"] = url
                 event["cover"] = url   # ✅ KEY FIX FOR FRONTEND
             else:
@@ -201,7 +194,7 @@ def update_event(request, event_id):
         # 🔥 RETURN COVER URL
         if updated_event.get("cover"):
             updated_event["cover_url"] = (
-                f"{BACKEND_URL}/api/events/cover/{updated_event['cover']}/"
+                f"http://127.0.0.1:8000/api/events/cover/{updated_event['cover']}/"
             )
 
             updated_event["cover"] = (

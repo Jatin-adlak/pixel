@@ -5,8 +5,14 @@ import { useNavigate } from "react-router-dom"
 
 export default function Hero(){
 
-const scrollToFeatures = () => {
-  document.getElementById("features").scrollIntoView({
+const scrollToFoundation = () => {
+  document.getElementById("foundation")?.scrollIntoView({
+    behavior: "smooth"
+  })
+}
+
+const scrollToAbout = () => {
+  document.getElementById("about")?.scrollIntoView({
     behavior: "smooth"
   })
 }
@@ -124,12 +130,22 @@ Get Started
 </button>
 )}
 
-<a href="#team" className="hover:scale-105 transition">
+<a href="#foundation" className="hover:scale-105 transition">
 
 <button
+onClick={scrollToFoundation}
 className={`
-px-8 py-4 font-buttonsfont bg-white text-black rounded-full 
-border-2 border-black dark:border-white transition
+px-8
+py-4
+font-buttonsfont
+bg-white
+text-black
+rounded-full
+border-2
+border-black
+dark:border-white
+hover:scale-105
+transition
 ${user ? "mx-auto" : ""}
 `}
 >
@@ -141,8 +157,17 @@ Learn More
 <div className="absolute left-1/2 -translate-x-1/2 top-[72%]">
 
 <button
-onClick={scrollToFeatures}
-className="float-arrow text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+onClick={scrollToAbout}
+className="
+float-arrow
+text-black/70
+dark:text-white/70
+hover:text-black
+dark:hover:text-white
+transition
+drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]
+"
+>
 <ChevronDown size={38} color="#225CDB" />
 </button>
 

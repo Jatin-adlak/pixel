@@ -10,7 +10,7 @@ const [uploading,setUploading] = useState(false)
 
 const loadImages = async () => {
 try{
-const res = await fetch(`${import.meta.env.VITE_API_URL}/api/images/?event_id=${eventId}`)
+const res = await fetch(`http://localhost:8000/api/images/?event_id=${eventId}`)
 const data = await res.json()
 setImages(data)
 }catch(err){
@@ -42,7 +42,7 @@ formData.append("images", file)
 formData.append("event_id", eventId)
 formData.append("uploaded_by", "admin")
 
-await fetch(`${import.meta.env.VITE_API_URL}/api/images/upload/`,{
+await fetch("http://localhost:8000/api/images/upload/",{
 method:"POST",
 body:formData
 })

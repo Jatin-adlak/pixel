@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-
+// id="about"
 export default function About(){
 
 return(
@@ -98,7 +98,7 @@ Creating Memories
 max-w-3xl
 mx-auto
 opacity-60
-leading-8
+leading-8 font-buttonsfont
 ">
 
 PIXEL is the official photography and visual storytelling
@@ -132,7 +132,7 @@ pl-8
 <h3 className="
 text-2xl
 font-medium
-mb-4
+mb-4 font-headersfont
 ">
 
 Founded in 2025
@@ -141,7 +141,7 @@ Founded in 2025
 
 <p className="
 opacity-60
-leading-8
+leading-8 font-buttonsfont
 ">
 
 Established in November 2025 under the guidance
@@ -162,7 +162,7 @@ pl-8
 <h3 className="
 text-2xl
 font-medium
-mb-4
+mb-4 font-headersfont
 ">
 
 Student Driven
@@ -171,7 +171,7 @@ Student Driven
 
 <p className="
 opacity-60
-leading-8
+leading-8 font-buttonsfont
 ">
 
 The club is completely operated by students,
@@ -191,7 +191,7 @@ pl-8
 
 <h3 className="
 text-2xl
-font-medium
+font-headersfont
 mb-4
 ">
 
@@ -201,7 +201,7 @@ Major Coverage
 
 <p className="
 opacity-60
-leading-8
+leading-8 font-buttonsfont
 ">
 
 Covered TEDxSAIT 2026, Cognoise 2K26,
@@ -221,7 +221,7 @@ many other college activities.
 
 <h3 className="
 text-3xl
-font-medium
+font-headersfont
 mb-8
 leading-tight
 ">
@@ -234,7 +234,7 @@ The vision behind PIXEL
 <p className="
 leading-9
 opacity-70
-mb-8
+mb-8 font-buttonsfont
 ">
 
 PIXEL was created to capture every story,
@@ -247,7 +247,7 @@ inside Sri Aurobindo Institute of Technology.
 <p className="
 leading-9
 opacity-70
-mb-12
+mb-12 font-buttonsfont
 ">
 
 From academic conferences to cultural
@@ -281,9 +281,8 @@ text-center
 
 <h2 className="
 text-3xl
-font-bold
-text-blue-500
-">
+font-introducing
+text-blue-600">
 
 20+
 
@@ -292,7 +291,7 @@ text-blue-500
 <p className="
 opacity-60
 text-sm
-mt-2
+mt-2 font-buttonsfont
 ">
 
 Events
@@ -317,8 +316,8 @@ text-center
 
 <h2 className="
 text-3xl
-font-bold
-text-blue-500
+font-introducing
+text-blue-600
 ">
 
 2025
@@ -328,7 +327,7 @@ text-blue-500
 <p className="
 opacity-60
 text-sm
-mt-2
+mt-2 font-buttonsfont
 ">
 
 Started
@@ -353,8 +352,8 @@ text-center
 
 <h2 className="
 text-3xl
-font-bold
-text-blue-500
+font-introducing
+text-blue-600
 ">
 
 100%
@@ -364,7 +363,7 @@ text-blue-500
 <p className="
 opacity-60
 text-sm
-mt-2
+mt-2 font-buttonsfont
 ">
 
 Students

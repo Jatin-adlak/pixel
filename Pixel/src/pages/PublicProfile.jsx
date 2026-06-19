@@ -28,7 +28,7 @@ const loadProfile = async ()=>{
 try{
 
 const res = await fetch(
-`${import.meta.env.VITE_API_URL}api/users/public/${email}/`
+`http://127.0.0.1:8000/api/users/public/${email}/`
 )
 
 const data = await res.json()
@@ -48,7 +48,7 @@ currentUser?.email
 )
 
 const postsRes = await fetch(
-`${import.meta.env.VITE_API_URL}api/posts/`
+"http://127.0.0.1:8000/api/posts/"
 )
 
 const allPosts = await postsRes.json()
@@ -90,7 +90,7 @@ return
 try{
 
 const res = await fetch(
-`${import.meta.env.VITE_API_URL}api/users/follow-request/`,
+"http://127.0.0.1:8000/api/users/follow-request/",
 {
 method:"POST",
 headers:{
@@ -160,7 +160,7 @@ const unfollow = async () => {
 try{
 
 await fetch(
-`${import.meta.env.VITE_API_URL}api/users/unfollow/`,
+"http://127.0.0.1:8000/api/users/unfollow/",
 {
 method:"POST",
 headers:{

@@ -81,7 +81,7 @@ export default function EventGallery(){
         formData.append("image", file)
 
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}api/face/find/${id}/`,
+          `http://127.0.0.1:8000/api/face/find/${id}/`,
           {
             method: "POST",
             body: formData

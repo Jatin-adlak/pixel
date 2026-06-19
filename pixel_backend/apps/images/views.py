@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import StreamingHttpResponse
+
 from django.http import HttpResponse
 from bson import ObjectId
 
@@ -10,11 +10,6 @@ from .services import add_image, get_images
 from config.db import fs, images_collection
 
 import os
-
-BACKEND_URL = os.getenv(
-    "BACKEND_URL",
-    "http://127.0.0.1:8000"
-    )
 
 
 # 🔥 MULTIPLE IMAGE UPLOAD (FULL ORIGINAL + FIXES)
@@ -66,7 +61,7 @@ def upload_image(request):
 
                     uploaded_images.append({
                         "file_id": file_id,
-                        "url": f"{BACKEND_URL}/api/images/file/{file_id}/"
+                        "url": f"http://127.0.0.1:8000/api/images/file/{file_id}/"
                     })
 
                     print("✅ Saved:", file_id)
@@ -121,7 +116,7 @@ def fetch_images(request):
         result = [
             {
                 "file_id": str(img.get("file_id")),
-                "url": f"{BACKEND_URL}/api/images/file/{img.get('file_id')}/"
+                "url": f"http://127.0.0.1:8000/api/images/file/{img.get('file_id')}/"
             }
             for img in images
             if img.get("file_id")
@@ -139,30 +134,34 @@ def fetch_images(request):
 
 # 🔥 SERVE IMAGE (FULL ORIGINAL SAFE)
 @api_view(['GET'])
-@api_view(['GET'])
 def get_image_file(request, file_id):
     try:
-        grid_out = fs.get(ObjectId(file_id))
+        file = fs.get(ObjectId(file_id))
 
-        content_type = getattr(
-            grid_out,
-            "content_type",
-            "image/jpeg"
-        )
+        content_type = getattr(file, "content_type", None)
 
-        response = HttpResponse(
-            grid_out.read(),
+        if not content_type:
+            filename = file.filename.lower()
+
+            if filename.endswith(".png"):
+                content_type = "image/png"
+            elif filename.endswith(".webp"):
+                content_type = "image/webp"
+            elif filename.endswith(".jpg") or filename.endswith(".jpeg"):
+                content_type = "image/jpeg"
+            else:
+                content_type = "application/octet-stream"
+
+        return HttpResponse(
+            file.read(),
             content_type=content_type
         )
 
-        return response
-
     except Exception as e:
-        print("❌ IMAGE FETCH ERROR:", e)
-
+        print("❌ File fetch error:", e)
         return Response(
             {"error": str(e)},
-            status=500
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

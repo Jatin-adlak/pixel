@@ -2,12 +2,6 @@ from config.db import posts_collection, fs
 from bson import ObjectId
 from datetime import datetime
 
-import os
-
-BACKEND_URL = os.getenv(
-    "BACKEND_URL",
-    "http://127.0.0.1:8000"
-    )
 
 # 🔥 GET POSTS
 def get_posts():
@@ -24,7 +18,7 @@ def get_posts():
             "text": post.get("text"),
 
             # 🔥 FIXED URL
-            "image_url": f"{BACKEND_URL}/api/images/file/{file_id}/" if file_id else None,
+            "image_url": f"http://127.0.0.1:8000/api/images/file/{file_id}/" if file_id else None,
 
             # 🔥 SIMPLE COUNT
             "likes": post.get("likes", 0),

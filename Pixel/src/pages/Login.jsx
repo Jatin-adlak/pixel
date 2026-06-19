@@ -78,7 +78,7 @@ const savedUser = await loginUser(userData)
 /* 🔥 FETCH COMPLETE USER */
 
 const freshRes = await fetch(
-`${import.meta.env.VITE_API_URL}api/users/public/${savedUser.email}/`
+`http://127.0.0.1:8000/api/users/public/${savedUser.email}/`
 )
 
 const freshUser = await freshRes.json()

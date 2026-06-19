@@ -3,7 +3,7 @@ import requests
 from PIL import Image
 import io
 
-API_URL = "${import.meta.env.VITE_API_URL}search"
+API_URL = "http://127.0.0.1:8000/search"
 
 st.set_page_config(page_title="Face Search Engine", layout="wide")
 
