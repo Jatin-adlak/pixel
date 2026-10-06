@@ -1,1140 +1,1143 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Pencil } from "lucide-react"
-import ImageViewer from "./ImageViewer"
+    import { useEffect, useState } from "react"
+    import { useNavigate } from "react-router-dom"
+    import { Pencil } from "lucide-react"
+    import ImageViewer from "./ImageViewer"
 
-export default function Profile() {
+    export default function Profile() {
 
-const navigate = useNavigate()
+    const navigate = useNavigate()
 
-const [user,setUser] = useState(null)
+    const [user,setUser] = useState(null)
 
-const [savedPosts,setSavedPosts] = useState([])
-const [savedImages,setSavedImages] = useState([])
+    const [savedPosts,setSavedPosts] = useState([])
+    const [savedImages,setSavedImages] = useState([])
 
-const [viewer,setViewer] = useState(null)
-const [postViewer,setPostViewer] = useState(null)
+    const [viewer,setViewer] = useState(null)
+    const [postViewer,setPostViewer] = useState(null)
 
-const [editing,setEditing] = useState(false)
+    const [editing,setEditing] = useState(false)
 
-const [newName,setNewName] = useState("")
-const [newPhoto,setNewPhoto] = useState("")
+    const [newName,setNewName] = useState("")
+    const [newPhoto,setNewPhoto] = useState("")
 
-const [activeTab,setActiveTab] = useState("posts")
+    const [activeTab,setActiveTab] = useState("posts")
 
-const [showFollowers,setShowFollowers] =
-useState(false)
+    const [showFollowers,setShowFollowers] =
+    useState(false)
 
-const [showFollowing,setShowFollowing] =
-useState(false)
+    const [showFollowing,setShowFollowing] =
+    useState(false)
 
-const [followersData,setFollowersData] =
-useState([])
+    const [followersData,setFollowersData] =
+    useState([])
 
-const [followingData,setFollowingData] =
-useState([])
+    const [followingData,setFollowingData] =
+    useState([])
 
-const [followersSearch,setFollowersSearch] =
-useState("")
+    const [followersSearch,setFollowersSearch] =
+    useState("")
 
-const [followingSearch,setFollowingSearch] =
-useState("")
+    const [followingSearch,setFollowingSearch] =
+    useState("")
 
-/* LOAD USER */
+    /* LOAD USER */
 
-useEffect(()=>{
+    useEffect(()=>{
 
-const loadData = async () => {
+    const loadData = async () => {
 
-const storedUser = localStorage.getItem("pixelUser")
+    const storedUser = localStorage.getItem("pixelUser")
 
-if(storedUser){
+    if(storedUser){
 
-const parsed = JSON.parse(storedUser)
+    const parsed = JSON.parse(storedUser)
 
-/* 🔥 FETCH FRESH USER */
+    /* 🔥 FETCH FRESH USER */
 
-const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${parsed.email}/`
-)
+    const res = await fetch(
+    `http://127.0.0.1:8000/api/users/public/${parsed.email}/`
+    )
 
-const freshUser = await res.json()
+    const freshUser = await res.json()
 
-const updatedUser = {
+    const updatedUser = {
 
-...parsed,
+     ...parsed,
 
-saved_posts:
-freshUser.saved_posts || [],
+    // 🔥 Always get latest admin status from backend
+    isAdmin: freshUser.isAdmin === true,
 
-saved_images:
-freshUser.saved_images || [],
+     saved_posts:
+         freshUser.saved_posts || [],
 
-followers:
-freshUser.followers || [],
+     saved_images:
+         freshUser.saved_images || [],
 
-following:
-freshUser.following || [],
+     followers:
+        freshUser.followers || [],
 
-follow_requests:
-freshUser.follow_requests || []
+     following:
+         freshUser.following || [],
 
-}
+    follow_requests:
+        freshUser.follow_requests || []
 
-/* 🔥 UPDATE STORAGE */
+    }
 
-localStorage.setItem(
-"pixelUser",
-JSON.stringify(updatedUser)
-)
+    /* 🔥 UPDATE STORAGE */
 
-setUser(updatedUser)
+    localStorage.setItem(
+    "pixelUser",
+    JSON.stringify(updatedUser)
+    )
 
-if(!editing){
-setNewName(parsed.name || "")
-setNewPhoto(parsed.picture || "")
-}
+    setUser(updatedUser)
 
-try{
+    if(!editing){
+    setNewName(parsed.name || "")
+    setNewPhoto(parsed.picture || "")
+    }
 
-const res = await fetch(
-"http://127.0.0.1:8000/api/posts/"
-)
+    try{
 
-const allPosts = await res.json()
+    const res = await fetch(
+    "http://127.0.0.1:8000/api/posts/"
+    )
 
-const savedIds = updatedUser.saved_posts || []
+    const allPosts = await res.json()
 
-const filteredPosts = allPosts.filter(
-post => savedIds.includes(post._id)
-)
+    const savedIds = updatedUser.saved_posts || []
 
-setSavedPosts(
+    const filteredPosts = allPosts.filter(
+    post => savedIds.includes(post._id)
+    )
 
-filteredPosts.map(post=>({
+    setSavedPosts(
 
-id:post._id,
-image:post.image_url || post.image
+    filteredPosts.map(post=>({
 
-}))
+    id:post._id,
+    image:post.image_url || post.image
 
-)
+    }))
 
-}catch(err){
-console.error("Saved posts error:", err)
-}
+    )
 
-setSavedImages(updatedUser.saved_images || [])
+    }catch(err){
+    console.error("Saved posts error:", err)
+    }
 
-}
+    setSavedImages(updatedUser.saved_images || [])
 
-}
+    }
 
-loadData()
+    }
 
-window.addEventListener("storage", loadData)
+    loadData()
 
-return ()=>window.removeEventListener(
-"storage",
-loadData
-)
+    window.addEventListener("storage", loadData)
 
-},[editing])
+    return ()=>window.removeEventListener(
+    "storage",
+    loadData
+    )
 
-/* LOGOUT */
+    },[editing])
 
-const handleLogout = () => {
+    /* LOGOUT */
 
-localStorage.removeItem("pixelUser")
+    const handleLogout = () => {
 
-window.dispatchEvent(new Event("storage"))
+    localStorage.removeItem("pixelUser")
 
-navigate("/")
+    window.dispatchEvent(new Event("storage"))
 
-}
+    navigate("/")
 
-/* IMAGE UPLOAD */
+    }
 
-const handleImageUpload = (e) => {
+    /* IMAGE UPLOAD */
 
-const file = e.target.files[0]
+    const handleImageUpload = (e) => {
 
-if(!file) return
+    const file = e.target.files[0]
 
-if(!file.type.startsWith("image/")){
-alert("Please upload image")
-return
-}
+    if(!file) return
 
-const reader = new FileReader()
+    if(!file.type.startsWith("image/")){
+    alert("Please upload image")
+    return
+    }
 
-reader.onload = ()=>{
+    const reader = new FileReader()
 
-const img = new Image()
+    reader.onload = ()=>{
 
-img.onload = ()=>{
+    const img = new Image()
 
-const size = Math.min(img.width,img.height)
+    img.onload = ()=>{
 
-const canvas = document.createElement("canvas")
+    const size = Math.min(img.width,img.height)
 
-canvas.width = size
-canvas.height = size
+    const canvas = document.createElement("canvas")
 
-const ctx = canvas.getContext("2d")
+    canvas.width = size
+    canvas.height = size
 
-ctx.drawImage(
-img,
-(img.width - size) / 2,
-(img.height - size) / 2,
-size,
-size,
-0,
-0,
-size,
-size
-)
+    const ctx = canvas.getContext("2d")
 
-const cropped = canvas.toDataURL("image/png")
+    ctx.drawImage(
+    img,
+    (img.width - size) / 2,
+    (img.height - size) / 2,
+    size,
+    size,
+    0,
+    0,
+    size,
+    size
+    )
 
-setNewPhoto(cropped)
+    const cropped = canvas.toDataURL("image/png")
 
-}
+    setNewPhoto(cropped)
 
-img.src = reader.result
+    }
 
-}
+    img.src = reader.result
 
-reader.readAsDataURL(file)
+    }
 
-}
+    reader.readAsDataURL(file)
 
-/* SAVE PROFILE */
+    }
 
-const saveProfile = async () => {
+    /* SAVE PROFILE */
 
-try{
+    const saveProfile = async () => {
 
-const updatedName =
-newName?.trim() || user.name
+    try{
 
-const updatedPicture =
-newPhoto || user.picture
+    const updatedName =
+    newName?.trim() || user.name
 
-const res = await fetch(
-"http://127.0.0.1:8000/api/users/update-profile/",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
+    const updatedPicture =
+    newPhoto || user.picture
 
-email:user.email,
-name:updatedName,
-picture:updatedPicture
+    const res = await fetch(
+    "http://127.0.0.1:8000/api/users/update-profile/",
+    {
+    method:"POST",
+    headers:{
+    "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
 
-})
-}
-)
+    email:user.email,
+    name:updatedName,
+    picture:updatedPicture
 
-console.log(
-"Picture length:",
-(newPhoto || user.picture)?.length
-)
+    })
+    }
+    )
 
-console.log(
-"Picture preview:",
-(newPhoto || user.picture)?.slice(0,100)
-)
+    console.log(
+    "Picture length:",
+    (newPhoto || user.picture)?.length
+    )
 
-const data = await res.json()
+    console.log(
+    "Picture preview:",
+    (newPhoto || user.picture)?.slice(0,100)
+    )
 
-const updatedUser = {
+    const data = await res.json()
 
-...user,
+    const updatedUser = {
 
-name:data.name || user.name,
-picture:data.picture || user.picture
+    ...user,
 
-}
+    name:data.name || user.name,
+    picture:data.picture || user.picture
 
-localStorage.setItem(
-"pixelUser",
-JSON.stringify(updatedUser)
-)
+    }
 
-window.dispatchEvent(
-new Event("storage")
-)
+    localStorage.setItem(
+    "pixelUser",
+    JSON.stringify(updatedUser)
+    )
 
-window.dispatchEvent(
-new Event("userChanged")
-)
+    window.dispatchEvent(
+    new Event("storage")
+    )
 
-setUser(updatedUser)
+    window.dispatchEvent(
+    new Event("userChanged")
+    )
 
-setEditing(false)
+    setUser(updatedUser)
 
-}catch(err){
+    setEditing(false)
 
-console.error(
-"Profile save error:",
-err
-)
+    }catch(err){
 
-}
+    console.error(
+    "Profile save error:",
+    err
+    )
 
-}
-/* CANCEL EDIT */
+    }
 
-const cancelEdit = () => {
+    }
+    /* CANCEL EDIT */
 
-setNewName(user.name)
-setNewPhoto(user.picture)
+    const cancelEdit = () => {
 
-setEditing(false)
+    setNewName(user.name)
+    setNewPhoto(user.picture)
 
-}
+    setEditing(false)
 
-/* RING COLOR */
+    }
 
-const getRingColor = () => {
+    /* RING COLOR */
 
-if(!user) return ""
+    const getRingColor = () => {
 
-if(user.domain === "sait.ac.in"){
-return "ring-[#b55f22]"
-}
+    if(!user) return ""
 
-if(user.domain === "saip.ac.in"){
-return "ring-blue-600"
-}
+    if(user.domain === "sait.ac.in"){
+    return "ring-[#b55f22]"
+    }
 
-return "ring-neutral-400"
+    if(user.domain === "saip.ac.in"){
+    return "ring-blue-600"
+    }
 
-}
+    return "ring-neutral-400"
 
-/* LOAD FOLLOW CONNECTIONS */
+    }
 
-const loadConnections = async (
-emails,
-type
-) => {
+    /* LOAD FOLLOW CONNECTIONS */
 
-try{
+    const loadConnections = async (
+    emails,
+    type
+    ) => {
 
-const users = await Promise.all(
+    try{
 
-emails.map(async (email)=>{
+    const users = await Promise.all(
 
-const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${email}/`
-)
+    emails.map(async (email)=>{
 
-return await res.json()
+    const res = await fetch(
+    `http://127.0.0.1:8000/api/users/public/${email}/`
+    )
 
-})
+    return await res.json()
 
-)
+    })
 
-if(type === "followers"){
-setFollowersData(users)
-}else{
-setFollowingData(users)
-}
+    )
 
-}catch(err){
+    if(type === "followers"){
+    setFollowersData(users)
+    }else{
+    setFollowingData(users)
+    }
 
-console.error(err)
+    }catch(err){
 
-}
+    console.error(err)
 
-}
+    }
 
-if(!user){
-return(
-<div className="min-h-screen flex items-center justify-center">
-Not logged in
-</div>
-)
-}
+    }
 
-return(
+    if(!user){
+    return(
+    <div className="min-h-screen flex items-center justify-center">
+    Not logged in
+    </div>
+    )
+    }
 
-<div className="min-h-screen pt-24 bg-white dark:bg-black text-black dark:text-white overflow-x-hidden">
+    return(
 
-<div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen pt-24 bg-white dark:bg-black text-black dark:text-white overflow-x-hidden">
 
-<div className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-16 pt-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
-{/* PROFILE IMAGE */}
+    <div className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-16 pt-6">
 
-<div className="flex flex-col items-center gap-3 shrink-0">
+    {/* PROFILE IMAGE */}
 
-<img
-src={newPhoto || user.picture}
-className={`
-w-32 h-32 md:w-40 md:h-40
-rounded-full object-cover
-ring-4 ring-offset-4
-ring-offset-white dark:ring-offset-black
-${getRingColor()}
-`}
-/>
+    <div className="flex flex-col items-center gap-3 shrink-0">
 
-{editing && (
+    <img
+    src={newPhoto || user.picture}
+    className={`
+    w-32 h-32 md:w-40 md:h-40
+    rounded-full object-cover
+    ring-4 ring-offset-4
+    ring-offset-white dark:ring-offset-black
+    ${getRingColor()}
+    `}
+    />
 
-<input
-type="file"
-accept="image/*"
-onChange={handleImageUpload}
-className="text-xs"
-/>
+    {editing && (
 
-)}
+    <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageUpload}
+    className="text-xs"
+    />
 
-</div>
+    )}
 
-{/* USER INFO */}
+    </div>
 
-<div className="flex flex-col gap-3 text-center md:text-left">
+    {/* USER INFO */}
 
-{/* NAME */}
+    <div className="flex flex-col gap-3 text-center md:text-left">
 
-<div className="flex items-center gap-3 justify-center md:justify-start">
+    {/* NAME */}
 
-{editing ? (
+    <div className="flex items-center gap-3 justify-center md:justify-start">
 
-<input
-value={newName}
-onChange={(e)=>setNewName(e.target.value)}
-className="
-text-3xl md:text-4xl
-font-headersfont
-px-3 py-1 rounded-lg
-border border-gray-300 dark:border-neutral-700
-bg-white dark:bg-neutral-900
-"
-/>
+    {editing ? (
 
-) : (
+    <input
+    value={newName}
+    onChange={(e)=>setNewName(e.target.value)}
+    className="
+    text-3xl md:text-4xl
+    font-headersfont
+    px-3 py-1 rounded-lg
+    border border-gray-300 dark:border-neutral-700
+    bg-white dark:bg-neutral-900
+    "
+    />
 
-<>
+    ) : (
 
-<h1 className="text-3xl md:text-4xl font-headersfont">
-{user.name}
-</h1>
+    <>
 
-<button
-onClick={()=>setEditing(true)}
-className="
-w-8 h-8
-flex items-center justify-center
-rounded-full
-hover:bg-neutral-200
-dark:hover:bg-neutral-800
-transition
-"
->
-<Pencil
-size={16}
-className="text-gray-500 hover:text-blue-600"
-/>
-</button>
+    <h1 className="text-3xl md:text-4xl font-headersfont">
+    {user.name}
+    </h1>
 
-</>
+    <button
+    onClick={()=>setEditing(true)}
+    className="
+    w-8 h-8
+    flex items-center justify-center
+    rounded-full
+    hover:bg-neutral-200
+    dark:hover:bg-neutral-800
+    transition
+    "
+    >
+    <Pencil
+    size={16}
+    className="text-gray-500 hover:text-blue-600"
+    />
+    </button>
 
-)}
+    </>
 
-</div>
+    )}
 
-{/* EMAIL */}
+    </div>
 
-<p className="text-gray-500 dark:text-gray-400 text-sm">
-{user.email}
-</p>
+    {/* EMAIL */}
 
-{/* BUTTONS */}
+    <p className="text-gray-500 dark:text-gray-400 text-sm">
+    {user.email}
+    </p>
 
-<div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
+    {/* BUTTONS */}
 
-{editing && (
+    <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
 
-<>
+    {editing && (
 
-<button
-onClick={saveProfile}
-className="
-px-5 py-2
-rounded-xl
-bg-blue-600 text-white
-hover:bg-blue-700 transition
-"
->
-Save
-</button>
+    <>
 
-<button
-onClick={cancelEdit}
-className="
-px-5 py-2 rounded-xl
-border border-neutral-300
-dark:border-neutral-700
-hover:bg-neutral-100
-dark:hover:bg-neutral-900
-transition
-"
->
-Cancel
-</button>
+    <button
+    onClick={saveProfile}
+    className="
+    px-5 py-2
+    rounded-xl
+    bg-blue-600 text-white
+    hover:bg-blue-700 transition
+    "
+    >
+    Save
+    </button>
 
-</>
+    <button
+    onClick={cancelEdit}
+    className="
+    px-5 py-2 rounded-xl
+    border border-neutral-300
+    dark:border-neutral-700
+    hover:bg-neutral-100
+    dark:hover:bg-neutral-900
+    transition
+    "
+    >
+    Cancel
+    </button>
 
-)}
+    </>
 
-<button
-onClick={handleLogout}
-className="
-px-5 py-2 rounded-xl
-border border-red-500
-text-red-500
-hover:bg-red-500 hover:text-white
-transition
-"
->
-Logout
-</button>
+    )}
 
-{user?.isAdmin && (
+    <button
+    onClick={handleLogout}
+    className="
+    px-5 py-2 rounded-xl
+    border border-red-500
+    text-red-500
+    hover:bg-red-500 hover:text-white
+    transition
+    "
+    >
+    Logout
+    </button>
 
-<button
-onClick={()=>navigate("/admin")}
-className="
-px-5 py-2 rounded-xl
-bg-purple-600 text-white
-hover:bg-purple-700 transition
-"
->
-Admin Panel
-</button>
+    {user?.isAdmin && (
 
-)}
+    <button
+    onClick={()=>navigate("/admin")}
+    className="
+    px-5 py-2 rounded-xl
+    bg-purple-600 text-white
+    hover:bg-purple-700 transition
+    "
+    >
+    Admin Panel
+    </button>
 
-</div>
+    )}
 
-{/* STATS */}
+    </div>
 
-<div className="
-flex gap-8 mt-3
-text-sm md:text-base
-text-gray-700 dark:text-gray-300
-justify-center md:justify-start
-">
+    {/* STATS */}
 
-<span>
-<b>
-{savedPosts.length + savedImages.length}
-</b> Saves
-</span>
+    <div className="
+    flex gap-8 mt-3
+    text-sm md:text-base
+    text-gray-700 dark:text-gray-300
+    justify-center md:justify-start
+    ">
 
-<button
-onClick={()=>{
+    <span>
+    <b>
+    {savedPosts.length + savedImages.length}
+    </b> Saves
+    </span>
 
-loadConnections(
-user.followers || [],
-"followers"
-)
+    <button
+    onClick={()=>{
 
-setShowFollowers(true)
+    loadConnections(
+    user.followers || [],
+    "followers"
+    )
 
-}}
-className="
-hover:text-blue-500 transition
-"
->
+    setShowFollowers(true)
 
-<b>
-{user.followers?.length || 0}
-</b> Followers
+    }}
+    className="
+    hover:text-blue-500 transition
+    "
+    >
 
-</button>
+    <b>
+    {user.followers?.length || 0}
+    </b> Followers
 
-<button
-onClick={()=>{
+    </button>
 
-loadConnections(
-user.following || [],
-"following"
-)
+    <button
+    onClick={()=>{
 
-setShowFollowing(true)
+    loadConnections(
+    user.following || [],
+    "following"
+    )
 
-}}
-className="
-hover:text-blue-500 transition
-"
->
+    setShowFollowing(true)
 
-<b>
-{user.following?.length || 0}
-</b> Following
+    }}
+    className="
+    hover:text-blue-500 transition
+    "
+    >
 
-</button>
+    <b>
+    {user.following?.length || 0}
+    </b> Following
 
-</div>
+    </button>
 
-</div>
+    </div>
 
-</div>
+    </div>
 
-{/* 🔥 INSTAGRAM STYLE TABS */}
+    </div>
 
-<div className="mt-16 border-t border-neutral-800 max-w-4xl mx-auto">
+    {/* 🔥 INSTAGRAM STYLE TABS */}
 
-{/* TABS */}
+    <div className="mt-16 border-t border-neutral-800 max-w-4xl mx-auto">
 
-<div className="flex justify-center gap-20">
+    {/* TABS */}
 
-<button
-onClick={()=>setActiveTab("posts")}
-className={`
-py-4 text-sm font-medium border-t-2 transition
-${activeTab === "posts"
-? "border-white text-white"
-: "border-transparent text-gray-500"
-}
-`}
->
-Saved Posts
-</button>
+    <div className="flex justify-center gap-20">
 
-<button
-onClick={()=>setActiveTab("images")}
-className={`
-py-4 text-sm font-medium border-t-2 transition
-${activeTab === "images"
-? "border-white text-white"
-: "border-transparent text-gray-500"
-}
-`}
->
-Saved Images
-</button>
+    <button
+    onClick={()=>setActiveTab("posts")}
+    className={`
+    py-4 text-sm font-medium border-t-2 transition
+    ${activeTab === "posts"
+    ? "border-white text-white"
+    : "border-transparent text-gray-500"
+    }
+    `}
+    >
+    Saved Posts
+    </button>
 
-</div>
+    <button
+    onClick={()=>setActiveTab("images")}
+    className={`
+    py-4 text-sm font-medium border-t-2 transition
+    ${activeTab === "images"
+    ? "border-white text-white"
+    : "border-transparent text-gray-500"
+    }
+    `}
+    >
+    Saved Images
+    </button>
 
-{/* POSTS */}
+    </div>
 
-{activeTab === "posts" && (
+    {/* POSTS */}
 
-<div className="mt-8">
+    {activeTab === "posts" && (
 
-{savedPosts.length === 0 ? (
+    <div className="mt-8">
 
-<p className="text-gray-500 text-center">
-No saved posts yet.
-</p>
+    {savedPosts.length === 0 ? (
 
-) : (
+    <p className="text-gray-500 text-center">
+    No saved posts yet.
+    </p>
 
-<div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-5">
+    ) : (
 
-{savedPosts.map((post,i)=>(
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-5">
 
-<img
-key={post.id}
-src={post.image}
-onClick={()=>setPostViewer(i)}
-className="
-aspect-square
-w-full
-object-cover
-cursor-pointer
-rounded-xl
-hover:scale-[1.02]
-hover:opacity-90
-transition duration-300
-"
-/>
+    {savedPosts.map((post,i)=>(
 
-))}
+    <img
+    key={post.id}
+    src={post.image}
+    onClick={()=>setPostViewer(i)}
+    className="
+    aspect-square
+    w-full
+    object-cover
+    cursor-pointer
+    rounded-xl
+    hover:scale-[1.02]
+    hover:opacity-90
+    transition duration-300
+    "
+    />
 
-</div>
+    ))}
 
-)}
+    </div>
 
-</div>
+    )}
 
-)}
+    </div>
 
-{/* IMAGES */}
+    )}
 
-{activeTab === "images" && (
+    {/* IMAGES */}
 
-<div className="mt-8">
+    {activeTab === "images" && (
 
-{savedImages.length === 0 ? (
+    <div className="mt-8">
 
-<p className="text-gray-500 text-center">
-No saved images yet.
-</p>
+    {savedImages.length === 0 ? (
 
-) : (
+    <p className="text-gray-500 text-center">
+    No saved images yet.
+    </p>
 
-<div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-5">
+    ) : (
 
-{savedImages.map((img,i)=>(
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-5">
 
-<img
-key={i}
-src={img}
-onClick={()=>setViewer(i)}
-className="
-aspect-square
-w-full
-object-cover
-cursor-pointer
-rounded-xl
-hover:scale-[1.02]
-hover:opacity-90
-transition duration-300
-"
-/>
+    {savedImages.map((img,i)=>(
 
-))}
+    <img
+    key={i}
+    src={img}
+    onClick={()=>setViewer(i)}
+    className="
+    aspect-square
+    w-full
+    object-cover
+    cursor-pointer
+    rounded-xl
+    hover:scale-[1.02]
+    hover:opacity-90
+    transition duration-300
+    "
+    />
 
-</div>
+    ))}
 
-)}
+    </div>
 
-</div>
+    )}
 
-)}
+    </div>
 
-</div>
+    )}
 
-{/* 🔥 FOLLOWERS MODAL */}
+    </div>
 
-{showFollowers && (
+    {/* 🔥 FOLLOWERS MODAL */}
 
-<div className="
-fixed inset-0 z-50
-bg-black/70
-flex items-center justify-center
-px-4
-">
+    {showFollowers && (
 
-<div className="
-w-full max-w-md
-bg-neutral-900
-border border-neutral-800
-rounded-3xl
-overflow-hidden
-shadow-2xl
-">
+    <div className="
+    fixed inset-0 z-50
+    bg-black/70
+    flex items-center justify-center
+    px-4
+    ">
 
-<div className="
-flex items-center justify-between
-p-5 border-b border-neutral-800
-">
+    <div className="
+    w-full max-w-md
+    bg-neutral-900
+    border border-neutral-800
+    rounded-3xl
+    overflow-hidden
+    shadow-2xl
+    ">
 
-<h2 className="font-semibold text-lg">
-Followers
-</h2>
+    <div className="
+    flex items-center justify-between
+    p-5 border-b border-neutral-800
+    ">
 
-<button
-onClick={()=>
-setShowFollowers(false)
-}
-className="
-text-gray-400 hover:text-white
-transition
-"
->
-✕
-</button>
+    <h2 className="font-semibold text-lg">
+    Followers
+    </h2>
 
-</div>
+    <button
+    onClick={()=>
+    setShowFollowers(false)
+    }
+    className="
+    text-gray-400 hover:text-white
+    transition
+    "
+    >
+    ✕
+    </button>
 
-{/* 🔥 SEARCH */}
+    </div>
 
-<div className="p-4 border-b border-neutral-800">
+    {/* 🔥 SEARCH */}
 
-<input
-value={followersSearch}
-onChange={(e)=>
-setFollowersSearch(e.target.value)
-}
-placeholder="Search followers..."
-className="
-w-full px-4 py-3
-rounded-xl
-bg-neutral-800
-border border-neutral-700
-outline-none
-focus:border-blue-500
-text-sm
-"
-/>
+    <div className="p-4 border-b border-neutral-800">
 
-</div>
+    <input
+    value={followersSearch}
+    onChange={(e)=>
+    setFollowersSearch(e.target.value)
+    }
+    placeholder="Search followers..."
+    className="
+    w-full px-4 py-3
+    rounded-xl
+    bg-neutral-800
+    border border-neutral-700
+    outline-none
+    focus:border-blue-500
+    text-sm
+    "
+    />
 
-<div className="max-h-[420px] overflow-y-auto">
+    </div>
 
-{followersData.length === 0 ? (
+    <div className="max-h-[420px] overflow-y-auto">
 
-<p className="
-text-center py-10 text-gray-500
-">
-No followers yet
-</p>
+    {followersData.length === 0 ? (
 
-) : (
+    <p className="
+    text-center py-10 text-gray-500
+    ">
+    No followers yet
+    </p>
 
-followersData
-.filter(person =>
+    ) : (
 
-person.name
-?.toLowerCase()
-.includes(
-followersSearch.toLowerCase()
-)
+    followersData
+    .filter(person =>
 
-||
+    person.name
+    ?.toLowerCase()
+    .includes(
+    followersSearch.toLowerCase()
+    )
 
-person.email
-?.toLowerCase()
-.includes(
-followersSearch.toLowerCase()
-)
+    ||
 
-)
-.map(person => (
+    person.email
+    ?.toLowerCase()
+    .includes(
+    followersSearch.toLowerCase()
+    )
 
-<div
-key={person.email}
-className="
-flex items-center justify-between
-p-4 hover:bg-neutral-800 transition
-"
->
+    )
+    .map(person => (
 
-{/* PROFILE CLICK AREA */}
+    <div
+    key={person.email}
+    className="
+    flex items-center justify-between
+    p-4 hover:bg-neutral-800 transition
+    "
+    >
 
-<div
-onClick={()=>{
+    {/* PROFILE CLICK AREA */}
 
-navigate(
-`/user/${encodeURIComponent(
-person.email
-)}`
-)
+    <div
+    onClick={()=>{
 
-setShowFollowers(false)
+    navigate(
+    `/user/${encodeURIComponent(
+    person.email
+    )}`
+    )
 
-}}
-className="
-flex items-center gap-4
-cursor-pointer flex-1
-"
->
+    setShowFollowers(false)
 
-<img
-src={person.picture}
-className="
-w-12 h-12 rounded-full object-cover
-"
-/>
+    }}
+    className="
+    flex items-center gap-4
+    cursor-pointer flex-1
+    "
+    >
 
-<div>
+    <img
+    src={person.picture}
+    className="
+    w-12 h-12 rounded-full object-cover
+    "
+    />
 
-<p className="font-medium">
-{person.name}
-</p>
+    <div>
 
-<p className="
-text-sm text-gray-500
-">
-@{
-person.email.split("@")[0]
-}
-</p>
+    <p className="font-medium">
+    {person.name}
+    </p>
 
-</div>
+    <p className="
+    text-sm text-gray-500
+    ">
+    @{
+    person.email.split("@")[0]
+    }
+    </p>
 
-</div>
+    </div>
 
-{/* 🔥 REMOVE FOLLOWER */}
+    </div>
 
-<button
-onClick={async (e)=>{
+    {/* 🔥 REMOVE FOLLOWER */}
 
-e.stopPropagation()
+    <button
+    onClick={async (e)=>{
 
-try{
+    e.stopPropagation()
 
-await fetch(
-"http://127.0.0.1:8000/api/users/remove-follower/",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-user_email:user.email,
-follower_email:person.email
-})
-}
-)
+    try{
 
-/* UPDATE UI */
+    await fetch(
+    "http://127.0.0.1:8000/api/users/remove-follower/",
+    {
+    method:"POST",
+    headers:{
+    "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+    user_email:user.email,
+    follower_email:person.email
+    })
+    }
+    )
 
-setFollowersData(prev =>
-prev.filter(
-f => f.email !== person.email
-)
-)
+    /* UPDATE UI */
 
-const updatedUser = {
+    setFollowersData(prev =>
+    prev.filter(
+    f => f.email !== person.email
+    )
+    )
 
-...user,
+    const updatedUser = {
 
-followers:
-(user.followers || []).filter(
-f => f !== person.email
-)
+    ...user,
 
-}
+    followers:
+    (user.followers || []).filter(
+    f => f !== person.email
+    )
 
-setUser(updatedUser)
+    }
 
-localStorage.setItem(
-"pixelUser",
-JSON.stringify(updatedUser)
-)
+    setUser(updatedUser)
 
-window.dispatchEvent(
-new Event("storage")
-)
+    localStorage.setItem(
+    "pixelUser",
+    JSON.stringify(updatedUser)
+    )
 
-}catch(err){
+    window.dispatchEvent(
+    new Event("storage")
+    )
 
-console.error(err)
+    }catch(err){
 
-}
+    console.error(err)
 
-}}
-className="
-w-8 h-8
-rounded-full
-flex items-center justify-center
-text-gray-400
-hover:bg-red-500/20
-hover:text-red-500
-transition
-"
->
-✕
-</button>
+    }
 
-</div>
+    }}
+    className="
+    w-8 h-8
+    rounded-full
+    flex items-center justify-center
+    text-gray-400
+    hover:bg-red-500/20
+    hover:text-red-500
+    transition
+    "
+    >
+    ✕
+    </button>
 
-))
+    </div>
 
-)}
+    ))
 
-</div>
+    )}
 
-</div>
+    </div>
 
-</div>
+    </div>
 
-)}
+    </div>
 
-{/* 🔥 FOLLOWING MODAL */}
+    )}
 
-{showFollowing && (
+    {/* 🔥 FOLLOWING MODAL */}
 
-<div className="
-fixed inset-0 z-50
-bg-black/70
-flex items-center justify-center
-px-4
-">
+    {showFollowing && (
 
-<div className="
-w-full max-w-md
-bg-neutral-900
-border border-neutral-800
-rounded-3xl
-overflow-hidden
-shadow-2xl
-">
+    <div className="
+    fixed inset-0 z-50
+    bg-black/70
+    flex items-center justify-center
+    px-4
+    ">
 
-<div className="
-flex items-center justify-between
-p-5 border-b border-neutral-800
-">
+    <div className="
+    w-full max-w-md
+    bg-neutral-900
+    border border-neutral-800
+    rounded-3xl
+    overflow-hidden
+    shadow-2xl
+    ">
 
-<h2 className="font-semibold text-lg">
-Following
-</h2>
+    <div className="
+    flex items-center justify-between
+    p-5 border-b border-neutral-800
+    ">
 
-<button
-onClick={()=>
-setShowFollowing(false)
-}
-className="
-text-gray-400 hover:text-white
-transition
-"
->
-✕
-</button>
+    <h2 className="font-semibold text-lg">
+    Following
+    </h2>
 
-</div>
+    <button
+    onClick={()=>
+    setShowFollowing(false)
+    }
+    className="
+    text-gray-400 hover:text-white
+    transition
+    "
+    >
+    ✕
+    </button>
 
-{/* 🔥 SEARCH */}
+    </div>
 
-<div className="p-4 border-b border-neutral-800">
+    {/* 🔥 SEARCH */}
 
-<input
-value={followingSearch}
-onChange={(e)=>
-setFollowingSearch(e.target.value)
-}
-placeholder="Search following..."
-className="
-w-full px-4 py-3
-rounded-xl
-bg-neutral-800
-border border-neutral-700
-outline-none
-focus:border-blue-500
-text-sm
-"
-/>
+    <div className="p-4 border-b border-neutral-800">
 
-</div>
+    <input
+    value={followingSearch}
+    onChange={(e)=>
+    setFollowingSearch(e.target.value)
+    }
+    placeholder="Search following..."
+    className="
+    w-full px-4 py-3
+    rounded-xl
+    bg-neutral-800
+    border border-neutral-700
+    outline-none
+    focus:border-blue-500
+    text-sm
+    "
+    />
 
-<div className="max-h-[420px] overflow-y-auto">
+    </div>
 
-{followingData.length === 0 ? (
+    <div className="max-h-[420px] overflow-y-auto">
 
-<p className="
-text-center py-10 text-gray-500
-">
-No following yet
-</p>
+    {followingData.length === 0 ? (
 
-) : (
+    <p className="
+    text-center py-10 text-gray-500
+    ">
+    No following yet
+    </p>
 
-followingData
-.filter(person =>
+    ) : (
 
-person.name
-?.toLowerCase()
-.includes(
-followingSearch.toLowerCase()
-)
+    followingData
+    .filter(person =>
 
-||
+    person.name
+    ?.toLowerCase()
+    .includes(
+    followingSearch.toLowerCase()
+    )
 
-person.email
-?.toLowerCase()
-.includes(
-followingSearch.toLowerCase()
-)
+    ||
 
-)
-.map(person => (
+    person.email
+    ?.toLowerCase()
+    .includes(
+    followingSearch.toLowerCase()
+    )
 
-<div
-key={person.email}
-onClick={()=>{
+    )
+    .map(person => (
 
-navigate(
-`/user/${encodeURIComponent(
-person.email
-)}`
-)
+    <div
+    key={person.email}
+    onClick={()=>{
 
-setShowFollowing(false)
+    navigate(
+    `/user/${encodeURIComponent(
+    person.email
+    )}`
+    )
 
-}}
-className="
-flex items-center gap-4
-p-4 cursor-pointer
-hover:bg-neutral-800 transition
-"
->
+    setShowFollowing(false)
 
-<img
-src={person.picture}
-className="
-w-12 h-12 rounded-full object-cover
-"
-/>
+    }}
+    className="
+    flex items-center gap-4
+    p-4 cursor-pointer
+    hover:bg-neutral-800 transition
+    "
+    >
 
-<div>
+    <img
+    src={person.picture}
+    className="
+    w-12 h-12 rounded-full object-cover
+    "
+    />
 
-<p className="font-medium">
-{person.name}
-</p>
+    <div>
 
-<p className="
-text-sm text-gray-500
-">
-@{
-person.email.split("@")[0]
-}
-</p>
+    <p className="font-medium">
+    {person.name}
+    </p>
 
-</div>
+    <p className="
+    text-sm text-gray-500
+    ">
+    @{
+    person.email.split("@")[0]
+    }
+    </p>
 
-</div>
+    </div>
 
-))
+    </div>
 
-)}
+    ))
 
-</div>
+    )}
 
-</div>
+    </div>
 
-</div>
+    </div>
 
-)}
+    </div>
 
-{/* IMAGE VIEWER */}
+    )}
 
-{viewer !== null && (
+    {/* IMAGE VIEWER */}
 
-<ImageViewer
-images={savedImages}
-index={viewer}
-setViewer={setViewer}
-/>
+    {viewer !== null && (
 
-)}
+    <ImageViewer
+    images={savedImages}
+    index={viewer}
+    setViewer={setViewer}
+    />
 
-{/* POST VIEWER */}
+    )}
 
-{postViewer !== null && (
+    {/* POST VIEWER */}
 
-<ImageViewer
-images={savedPosts.map(p=>p.image)}
-index={postViewer}
-setViewer={setPostViewer}
-/>
+    {postViewer !== null && (
 
-)}
+    <ImageViewer
+    images={savedPosts.map(p=>p.image)}
+    index={postViewer}
+    setViewer={setPostViewer}
+    />
 
-</div>
+    )}
 
-</div>
+    </div>
 
-)
+    </div>
 
-}
+    )
+
+    }

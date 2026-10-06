@@ -1,0 +1,156 @@
+# =========================================================
+# PYTHON / VIRTUAL ENVIRONMENT
+# =========================================================
+
+venv/
+env/
+.venv/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.pyo
+*.pyd
+
+# Python build files
+build/
+dist/
+*.egg-info/
+.eggs/
+
+
+# =========================================================
+# ENVIRONMENT VARIABLES / SECRETS
+# =========================================================
+
+.env
+.env.*
+!.env.example
+
+# Local configuration / secrets
+secrets/
+credentials/
+*.pem
+*.key
+
+
+# =========================================================
+# DJANGO
+# =========================================================
+
+# Database files
+*.sqlite3
+db.sqlite3
+
+# Django generated files
+staticfiles/
+media/
+
+# Logs
+*.log
+
+
+# =========================================================
+# REACT / VITE
+# =========================================================
+
+# Node dependencies
+Pixel/node_modules/
+
+# Vite build output
+Pixel/dist/
+
+# Vite cache
+Pixel/.vite/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Optional package manager files
+.npm/
+
+
+# =========================================================
+# FACE SERVICE
+# =========================================================
+
+# Python cache
+face_service/__pycache__/
+
+# Generated face-recognition indexes / embeddings
+face_service/*.pkl
+face_service/*.pickle
+face_service/*.index
+face_service/*.faiss
+
+# Face service temporary uploads
+face_service/uploads/
+face_service/temp/
+face_service/tmp/
+
+# Generated datasets / cached data
+face_service/cache/
+face_service/output/
+
+
+# =========================================================
+# IDE / EDITOR
+# =========================================================
+
+.vscode/
+.idea/
+
+# VS Code local history
+.history/
+
+
+# =========================================================
+# OPERATING SYSTEM
+# =========================================================
+
+.DS_Store
+.DS_Store?
+Thumbs.db
+Desktop.ini
+
+
+# =========================================================
+# TEMPORARY FILES
+# =========================================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+
+
+# =========================================================
+# COVERAGE / TESTING
+# =========================================================
+
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+
+# =========================================================
+# JUPYTER
+# =========================================================
+
+.ipynb_checkpoints/
+
+
+# =========================================================
+# LOCAL DEVELOPMENT
+# =========================================================
+
+*.local

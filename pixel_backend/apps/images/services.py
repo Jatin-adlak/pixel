@@ -1,4 +1,4 @@
-import face_recognition
+#import face_recognition
 from config.db import images_collection, fs
 from io import BytesIO
 from datetime import datetime

@@ -4,7 +4,10 @@ echo ========================================
 echo 🚀 STARTING PIXEL PROJECT
 echo ========================================
 
-:: 🔥 KILL OLD PORTS (IMPORTANT)
+set "ROOT=C:\Users\yasha\Desktop\pixel\pixel"
+set "VENV=%ROOT%\venv"
+
+:: 🔥 KILL OLD PORTS
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5001') do taskkill /F /PID %%a >nul 2>&1
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8000') do taskkill /F /PID %%a >nul 2>&1
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5173') do taskkill /F /PID %%a >nul 2>&1
@@ -16,7 +19,7 @@ timeout /t 2 > nul
 :: ========================================
 echo 🚀 Starting Face Service...
 
-start cmd /k "cd /d C:\pixal\face_service && uvicorn backend.main:app --reload --host 127.0.0.1 --port 5001"
+start cmd /k "cd /d %ROOT%\face_service && call %VENV%\Scripts\activate.bat && uvicorn backend.main:app --reload --host 127.0.0.1 --port 5001"
 
 timeout /t 4 > nul
 
@@ -25,7 +28,7 @@ timeout /t 4 > nul
 :: ========================================
 echo 🚀 Starting Django Backend...
 
-start cmd /k "cd /d C:\pixal\pixel_backend && python manage.py runserver"
+start cmd /k "cd /d %ROOT%\pixel_backend && call %VENV%\Scripts\activate.bat && python manage.py runserver"
 
 timeout /t 3 > nul
 
@@ -34,7 +37,7 @@ timeout /t 3 > nul
 :: ========================================
 echo 🚀 Starting React Frontend...
 
-start cmd /k "cd /d C:\pixal\Pixel && npm run dev"
+start cmd /k "cd /d %ROOT%\Pixel && npm run dev"
 
 echo ========================================
 echo ✅ ALL SERVICES STARTED

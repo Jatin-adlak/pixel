@@ -50,8 +50,21 @@ export default function EventGallery(){
   }, [id])
 
 
-  /* 🔥 FIND MY PHOTOS */
+  /* ============================================================
+     🔥 ORIGINAL FIND MY PHOTOS FUNCTIONALITY
 
+     TEMPORARILY COMMENTED OUT.
+
+     KEEPING THIS FUNCTION IN ITS ORIGINAL POSITION SO IT CAN
+     EASILY BE ENABLED AGAIN LATER.
+
+     TO ENABLE:
+     - Uncomment this complete function.
+     - Replace the temporary Coming Soon function below.
+     ============================================================ */
+
+
+  /*
   const handleFindMyPhotos = async () => {
 
     if(!user){
@@ -119,6 +132,40 @@ export default function EventGallery(){
 
     input.click()
   }
+  */
+
+
+  /* ============================================================
+     🔥 TEMPORARY FIND MY PHOTOS POPUP
+
+     THIS TEMPORARY CODE CAN BE REPLACED WITH THE ORIGINAL
+     FUNCTIONALITY ABOVE WHEN "FIND MY PHOTOS" IS ENABLED.
+
+     JUST REMOVE THIS FUNCTION AND USE:
+
+     onClick={handleFindMyPhotos}
+
+     INSTEAD OF:
+
+     onClick={handleFindMyPhotosComingSoon}
+     ============================================================ */
+
+  const handleFindMyPhotosComingSoon = () => {
+
+    alert(
+      "📸 Find My Photos\n\n" +
+      "This feature is coming soon!\n\n" +
+      "We are working on bringing AI-powered photo finding to PIXEL."
+    )
+
+  }
+
+  /* ============================================================
+     🔥 END OF TEMPORARY FIND MY PHOTOS POPUP
+
+     WHEN THE ORIGINAL FUNCTIONALITY IS READY, REMOVE/COMMENT
+     THIS POPUP FUNCTION AND ENABLE handleFindMyPhotos ABOVE.
+     ============================================================ */
 
 
   return(
@@ -135,7 +182,7 @@ export default function EventGallery(){
 
         {user && (
           <button
-            onClick={handleFindMyPhotos}
+            onClick={handleFindMyPhotosComingSoon}
             className="px-4 py-2 rounded-3xl bg-blue-600 text-white text-sm hover:bg-blue-700 transition font-buttonsfont"
           >
             {searching ? "Searching..." : "Find My Photos"}
