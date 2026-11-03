@@ -1,15 +1,19 @@
+
 # =========================================================
-# PYTHON / VIRTUAL ENVIRONMENT
+# PYTHON / VIRTUAL ENVIRONMENTS
 # =========================================================
 
+venv/
+env/
+.venv/
 **/venv/
-**/.venv/
 **/env/
+**/.venv/
 
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
-
 *.pyo
 *.pyd
 
@@ -19,6 +23,13 @@ dist/
 *.egg-info/
 .eggs/
 
+# Python package caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
 
 # =========================================================
 # ENVIRONMENT VARIABLES / SECRETS
@@ -26,19 +37,29 @@ dist/
 
 .env
 .env.*
-!.env.example
+**/.env
+**/.env.*
 
-# Local configuration / secrets
+# Allow example environment files
+!.env.example
+!**/.env.example
+
+# Secret directories
 secrets/
+**/secrets/
 credentials/
-!credentials/.gitkeep
+**/credentials/
+
+# Secret and certificate files
 *.pem
 *.key
+*.p12
+*.pfx
 *service-account*.json
 
 
 # =========================================================
-# DJANGO
+# DJANGO / DATABASE
 # =========================================================
 
 # Database files
@@ -47,54 +68,62 @@ db.sqlite3
 
 # Django generated files
 staticfiles/
+**/staticfiles/
+
+# Generated media
 media/
+**/media/
 
 # Logs
 *.log
 
+# Local caches
+.cache/
+**/.cache/
+
 
 # =========================================================
-# REACT / VITE
+# REACT / VITE / NODE
 # =========================================================
 
 # Node dependencies
+node_modules/
 **/node_modules/
 
-# Vite build output
-Pixel/dist/
+# Build output
+dist/
+**/dist/
 
 # Vite cache
-Pixel/.vite/
+.vite/
+**/.vite/
 
-# npm logs
+# npm / yarn / pnpm logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Optional package manager files
+# npm cache
 .npm/
 
 
 # =========================================================
-# FACE SERVICE
+# FACE RECOGNITION SERVICE
 # =========================================================
 
-# Python cache
-face_service/__pycache__/
-
-# Generated face-recognition indexes / embeddings
+# Generated indexes and embeddings
 face_service/*.pkl
 face_service/*.pickle
 face_service/*.index
 face_service/*.faiss
 
-# Face service temporary uploads
+# Temporary uploads
 face_service/uploads/
 face_service/temp/
 face_service/tmp/
 
-# Generated datasets / cached data
+# Generated datasets and cached data
 face_service/cache/
 face_service/output/
 face_service/dataset/
@@ -107,9 +136,11 @@ face_service/datasets/
 
 .vscode/
 .idea/
-
-# VS Code local history
 .history/
+
+# Editor swap files
+*.swp
+*.swo
 
 
 # =========================================================
@@ -123,13 +154,11 @@ Desktop.ini
 
 
 # =========================================================
-# TEMPORARY FILES
+# TEMPORARY FILES / BACKUPS
 # =========================================================
 
 *.tmp
 *.temp
-*.swp
-*.swo
 *.bak
 *.backup
 
@@ -141,9 +170,6 @@ Desktop.ini
 .coverage
 .coverage.*
 htmlcov/
-.pytest_cache/
-.tox/
-.nox/
 
 
 # =========================================================
