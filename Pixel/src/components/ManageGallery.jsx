@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useState, useEffect } from "react"
 
 export default function ManageGallery(){
@@ -10,7 +11,7 @@ const [uploading,setUploading] = useState(false)
 
 const loadImages = async () => {
 try{
-const res = await fetch(`http://localhost:8000/api/images/?event_id=${eventId}`)
+const res = await fetch(`${API_ORIGIN}/api/images/?event_id=${eventId}`)
 const data = await res.json()
 setImages(data)
 }catch(err){
@@ -42,7 +43,7 @@ formData.append("images", file)
 formData.append("event_id", eventId)
 formData.append("uploaded_by", "admin")
 
-await fetch("http://localhost:8000/api/images/upload/",{
+await fetch(`${API_ORIGIN}/api/images/upload/`,{
 method:"POST",
 body:formData
 })

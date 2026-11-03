@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { motion } from "framer-motion"
 import { useEffect,useState } from "react"
 
@@ -26,7 +27,7 @@ const loadSpotlights=async()=>{
 try{
 
 const res=await fetch(
-"http://127.0.0.1:8000/api/spotlight/"
+`${API_ORIGIN}/api/spotlight/`
 )
 
 const data=await res.json()
@@ -206,7 +207,7 @@ items-stretch
 
 <img
 
-src={`http://127.0.0.1:8000${event.poster}`}
+src={`${API_ORIGIN}${event.poster}`}
 
 alt={event.name}
 

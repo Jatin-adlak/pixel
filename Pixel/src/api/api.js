@@ -1,17 +1,26 @@
-const BASE_URL = "http://127.0.0.1:8000/api"
+import { API_ORIGIN } from "../config/env"
+const BASE_URL = `${API_ORIGIN}/api`
 
 
 /* ================= USERS ================= */
 
-export const loginUser = async (data) => {
-  const res = await fetch(`${BASE_URL}/users/login/`, {
+export const loginUser = async ({ credential }) => {
+  const response = await fetch(`${BASE_URL}/users/login/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  })
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ credential }),
+  });
 
-  return res.json()
-}
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Login failed");
+  }
+
+  return data;
+};
 
 
 /* ================= POSTS ================= */
@@ -44,6 +53,22 @@ export const deletePost = async (postId) => {
 export const getEvents = async () => {
   const res = await fetch(`${BASE_URL}/events/`)
   return res.json()
+}
+
+export const getEventCatalog = async () => {
+  const res = await fetch(`${BASE_URL}/events/catalog/`)
+  return res.json()
+}
+
+export const getEventGallery = async (eventSlug) => {
+  const res = await fetch(`${BASE_URL}/events/${eventSlug}/`)
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load event gallery")
+  }
+
+  return data
 }
 
 export const createEvent = async (formData) => {
@@ -103,7 +128,7 @@ export const deleteImage = async (fileId) => {
 export const getNewsletters = async()=>{
 
 const res = await fetch(
-"http://127.0.0.1:8000/api/newsletters/"
+`${API_ORIGIN}/api/newsletters/`
 )
 
 return await res.json()

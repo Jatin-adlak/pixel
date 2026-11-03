@@ -1,224 +1,187 @@
-import { useNavigate } from "react-router-dom"
-import TeamParticles from "../components/TeamParticles"
-import { GoogleLogin } from "@react-oauth/google"
-import { jwtDecode } from "jwt-decode"
-import { loginUser } from "../api/api"
 
-export default function Login(){
-
-const navigate = useNavigate()
-
-const allowedDomains = ["sait.ac.in","saip.ac.in"]
-
-const adminEmails = [
-  "kanishkk52@gmail.com",
-  "altatrescue@gmail.com",
-  "yashadlakpc@gmail.com",
-  "biku.patel45@gmail.com"
-]
-
-const handleLoginSuccess = async (credentialResponse)=>{
-
-try {
-
-const decoded = jwtDecode(
-credentialResponse.credential
-)
-
-const email = decoded.email
-const domain = email.split("@")[1]
-
-let ring = ""
-
-/* ADMIN */
-
-if(adminEmails.includes(email)){
-
-  ring = "rainbow"
-
-/* DOMAIN USERS */
-
-}else if(allowedDomains.includes(domain)){
-
-  if(domain === "sait.ac.in"){
-    ring = "#b55f22"
-  }
-
-  if(domain === "saip.ac.in"){
-    ring = "blue-600"
-  }
-
-}else{
-
-  alert("Only approved emails can login")
-  return
-
-}
-
-/* 🔥 IMPORTANT: DO NOT FORCE EMPTY NAME */
-
-const isAdmin = adminEmails.includes(email)
-
-const userData = {
-
-  email: decoded.email,
-  picture: decoded.picture,
-
-  domain,
-  ring,
-
-  isAdmin
-
-}
-
-/* 🔥 LOGIN USER */
-
-const savedUser = await loginUser(userData)
-
-/* 🔥 FETCH COMPLETE USER */
-
-const freshRes = await fetch(
-`http://127.0.0.1:8000/api/users/public/${savedUser.email}/`
-)
-
-const freshUser = await freshRes.json()
-
-/* 🔥 FULL USER OBJECT */
-
-const updatedUser = {
-
-  email: freshUser.email,
-  name: freshUser.name || "",
-
-  picture: freshUser.picture,
-
-  ring: freshUser.ring,
-  domain: freshUser.domain,
-
-  isAdmin: adminEmails.includes(
-    freshUser.email
-  ),
-
-  saved_posts:
-    freshUser.saved_posts || [],
-
-  saved_images:
-    freshUser.saved_images || [],
-
-  followers:
-    freshUser.followers || [],
-
-  following:
-    freshUser.following || [],
-
-  follow_requests:
-    freshUser.follow_requests || []
-
-}
-
-/* 🔥 SAVE USER */
-
-localStorage.setItem(
-  "pixelUser",
-  JSON.stringify(updatedUser)
-)
-
-window.dispatchEvent(
-  new Event("storage")
-)
-
-window.dispatchEvent(
-  new Event("userChanged")
-)
-
-/* 🔍 DEBUG */
-
-console.log("LOGIN USER:", updatedUser)
-
-/* 🔥 SAFE CHECK */
-
-const isNewUser =
-  !freshUser.name ||
-  freshUser.name === "" ||
-  freshUser.name === null
-
-if (isNewUser) {
-
-  navigate("/username", {
-    state: { email: freshUser.email }
-  })
-
-} else {
-
-  navigate("/feed", {
-    state: { email: freshUser.email }
-  })
-
-}
-
-} catch (err) {
-
-console.error("Login error:", err)
-
-alert("Login failed. Try again.")
-
-}
-
-}
-
-return(
-
-<section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-black">
-
-<TeamParticles/>
-
-<div className="
-relative z-10
-backdrop-blur-2xl
-bg-white/20 dark:bg-black/20
-border border-white/30 dark:border-white/10
-rounded-3xl
-px-12 py-14
-shadow-xl
-flex flex-col items-center text-center
-">
-
-<h1 className="text-5xl font-pixel mb-10 text-blue-600">
-Pixel
-</h1>
-
-<p className="text-black dark:text-gray-400 mb-8">
-Your <i>moments</i>, organised <i>beautifully!</i>
-</p>
-
-<div className="flex flex-col gap-4 w-[260px]">
-
-<div className="flex justify-center">
-
-<GoogleLogin
-onSuccess={handleLoginSuccess}
-onError={()=>console.log("Login Failed")}
-/>
-
-</div>
-
-<button
-onClick={()=>navigate("/feed")}
-className="
-text-gray-600 dark:text-gray-400
-w-full py-3 rounded-xl
-hover:bg-white/10 transition
-"
->
-Browse as Guest
-</button>
-
-</div>
-
-</div>
-
-</section>
-
-)
-
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+
+import TeamParticles from "../components/TeamParticles";
+import { loginUser } from "../api/api";
+import { isNativeApp, nativeGoogleSignIn } from "../auth/nativeGoogle";
+
+export default function Login() {
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLoginSuccess = async (credentialResponse) => {
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      setError("");
+
+      // Ensure Google returned an identity credential.
+      const credential = credentialResponse?.credential;
+
+      if (!credential) {
+        throw new Error("Google did not return a credential.");
+      }
+
+      // Send Google's credential to Django.
+      // Django verifies it and issues PIXEL's JWT tokens.
+      const result = await loginUser({ credential });
+
+      // Validate the response before storing anything.
+      if (!result?.user || !result?.access || !result?.refresh) {
+        throw new Error(
+          "The server returned an incomplete login response."
+        );
+      }
+
+      const savedUser = result.user;
+
+      if (!savedUser.email) {
+        throw new Error("The server did not return a user email.");
+      }
+
+      // Store PIXEL access and refresh tokens.
+      localStorage.setItem("pixelAccessToken", result.access);
+      localStorage.setItem("pixelRefreshToken", result.refresh);
+
+      // Store the user profile returned by Django.
+      localStorage.setItem(
+        "pixelUser",
+        JSON.stringify(savedUser)
+      );
+
+      // Notify components that listen for user changes.
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("userChanged"));
+
+      // Preserve the existing onboarding flow.
+      const isNewUser =
+        typeof savedUser.name !== "string" ||
+        savedUser.name.trim() === "";
+
+      if (isNewUser) {
+        navigate("/username", {
+          state: { email: savedUser.email },
+          replace: true,
+        });
+      } else {
+        navigate("/feed", {
+          state: { email: savedUser.email },
+          replace: true,
+        });
+      }
+    } catch (err) {
+      console.error("PIXEL login error:", err);
+
+      setError(
+        err.message || "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google sign-in failed. Please try again.");
+  };
+
+  // Android / iOS app: Google blocks web sign-in inside a WebView,
+  // so use the native account picker and reuse the same login flow.
+  const handleNativeGoogle = async () => {
+    if (loading) return;
+    try {
+      setError("");
+      const idToken = await nativeGoogleSignIn();
+      await handleLoginSuccess({ credential: idToken });
+    } catch (err) {
+      console.error("PIXEL native login error:", err);
+      setError(err.message || "Google sign-in failed. Please try again.");
+    }
+  };
+
+  const handleGuestBrowse = () => {
+    navigate("/feed");
+  };
+
+  return (
+    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-black">
+      <TeamParticles />
+
+      <div
+        className="
+          relative z-10
+          backdrop-blur-2xl
+          bg-white/20 dark:bg-black/20
+          border border-white/30 dark:border-white/10
+          rounded-3xl
+          px-12 py-14
+          shadow-xl
+          flex flex-col items-center text-center
+        "
+      >
+        <h1 className="text-5xl font-pixel mb-10 text-blue-600">
+          Pixel
+        </h1>
+
+        <p className="text-black dark:text-gray-400 mb-8">
+          Your <i>moments</i>, organised <i>beautifully!</i>
+        </p>
+
+        <div className="flex flex-col gap-4 w-[260px]">
+          <div className="flex justify-center">
+            {isNativeApp() ? (
+              <button
+                type="button"
+                onClick={handleNativeGoogle}
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-white text-black font-medium shadow hover:bg-gray-100 transition disabled:opacity-60"
+              >
+                Continue with Google
+              </button>
+            ) : (
+              <GoogleLogin
+                onSuccess={handleLoginSuccess}
+                onError={handleGoogleError}
+                useOneTap={false}
+              />
+            )}
+          </div>
+
+          {loading && (
+            <p
+              className="text-sm text-gray-500"
+              role="status"
+            >
+              Signing in...
+            </p>
+          )}
+
+          {error && (
+            <p
+              className="text-sm text-red-500 break-words"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={handleGuestBrowse}
+            className="
+              text-gray-600 dark:text-gray-400
+              w-full py-3 rounded-xl
+              hover:bg-white/10 transition
+            "
+          >
+            Browse as Guest
+          </button>
+        </div>
+      </div>
+    </section>
+  );
 }

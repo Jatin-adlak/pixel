@@ -2,9 +2,9 @@
 # PYTHON / VIRTUAL ENVIRONMENT
 # =========================================================
 
-venv/
-env/
-.venv/
+**/venv/
+**/.venv/
+**/env/
 
 __pycache__/
 *.py[cod]
@@ -31,8 +31,10 @@ dist/
 # Local configuration / secrets
 secrets/
 credentials/
+!credentials/.gitkeep
 *.pem
 *.key
+*service-account*.json
 
 
 # =========================================================
@@ -56,7 +58,7 @@ media/
 # =========================================================
 
 # Node dependencies
-Pixel/node_modules/
+**/node_modules/
 
 # Vite build output
 Pixel/dist/
@@ -95,6 +97,8 @@ face_service/tmp/
 # Generated datasets / cached data
 face_service/cache/
 face_service/output/
+face_service/dataset/
+face_service/datasets/
 
 
 # =========================================================

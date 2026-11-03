@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
     import { useEffect, useState } from "react"
     import { useNavigate } from "react-router-dom"
     import { Pencil } from "lucide-react"
@@ -55,7 +56,7 @@
     /* 🔥 FETCH FRESH USER */
 
     const res = await fetch(
-    `http://127.0.0.1:8000/api/users/public/${parsed.email}/`
+    `${API_ORIGIN}/api/users/public/${parsed.email}/`
     )
 
     const freshUser = await res.json()
@@ -101,7 +102,7 @@
     try{
 
     const res = await fetch(
-    "http://127.0.0.1:8000/api/posts/"
+    `${API_ORIGIN}/api/posts/`
     )
 
     const allPosts = await res.json()
@@ -225,7 +226,7 @@
     newPhoto || user.picture
 
     const res = await fetch(
-    "http://127.0.0.1:8000/api/users/update-profile/",
+    `${API_ORIGIN}/api/users/update-profile/`,
     {
     method:"POST",
     headers:{
@@ -332,7 +333,7 @@
     emails.map(async (email)=>{
 
     const res = await fetch(
-    `http://127.0.0.1:8000/api/users/public/${email}/`
+    `${API_ORIGIN}/api/users/public/${email}/`
     )
 
     return await res.json()
@@ -878,7 +879,7 @@
     try{
 
     await fetch(
-    "http://127.0.0.1:8000/api/users/remove-follower/",
+    `${API_ORIGIN}/api/users/remove-follower/`,
     {
     method:"POST",
     headers:{

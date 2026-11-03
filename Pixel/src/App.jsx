@@ -14,6 +14,7 @@ import UsernameSetup from "./pages/UsernameSetup"
 import Navbar from "./components/Navbar"
 import CustomCursor from "./components/CustomCursor"
 import ThemeToggle from "./components/ThemeToggle"
+import MobileTabBar from "./components/MobileTabBar"
 import PublicProfile from "./pages/PublicProfile"
 import Moments from "./pages/Moments"
 import Spotlight from "./pages/Spotlight"
@@ -33,6 +34,7 @@ function Layout() {
 
       {!hideNavbar && <Navbar />}
       <ThemeToggle />
+      <MobileTabBar />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -41,7 +43,7 @@ function Layout() {
         <Route path="/newsletter" element={<Newsletter />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/gallery" element={<Gallery />} />
-        <Route path="/gallery/:id" element={<EventGallery />} />
+        <Route path="/gallery/:eventSlug" element={<EventGallery />} />
         <Route path="/face-setup" element={<FaceSetup />} />
         <Route path="/face-filter" element={<FaceFilter />} />
         <Route path="/username" element={<UsernameSetup />} />

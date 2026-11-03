@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -11,6 +12,8 @@ export default function Admin() {
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [date, setDate] = useState("")
+  const [driveFolderId, setDriveFolderId] = useState("")
   const [cover, setCover] = useState(null)
 
   const [eventImages, setEventImages] = useState([])
@@ -77,7 +80,7 @@ export default function Admin() {
   /* LOAD EVENTS */
   const loadEvents = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/events/")
+      const res = await fetch(`${API_ORIGIN}/api/events/`)
       const data = await res.json()
 
       setEvents(data)
@@ -108,12 +111,14 @@ export default function Admin() {
       const formData = new FormData()
       formData.append("name", name)
       formData.append("description", description)
+      if (date) formData.append("date", date)
+      formData.append("drive_folder_id", driveFolderId)
 
       if (cover) formData.append("cover", cover)
 
       const url = editingId
-        ? `http://127.0.0.1:8000/api/events/update/${editingId}/`
-        : "http://127.0.0.1:8000/api/events/add/"
+        ? `${API_ORIGIN}/api/events/update/${editingId}/`
+        : `${API_ORIGIN}/api/events/add/`
 
       const method = editingId ? "PUT" : "POST"
 
@@ -122,10 +127,10 @@ export default function Admin() {
         body: formData
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
-        alert(data.error || "Failed ❌")
+        alert(data.error || "Failed to save event")
         return
       }
 
@@ -133,6 +138,8 @@ export default function Admin() {
 
       setName("")
       setDescription("")
+      setDate("")
+      setDriveFolderId("")
       setCover(null)
       setEditingId(null)
 
@@ -148,6 +155,8 @@ export default function Admin() {
   const editEvent = (event) => {
     setName(event.name)
     setDescription(event.description || "")
+    setDate(event.date || "")
+    setDriveFolderId(event.drive_folder_id || "")
     setEditingId(event._id)
   }
 
@@ -157,7 +166,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/events/delete/${id}/`,
+        `${API_ORIGIN}/api/events/delete/${id}/`,
         { method: "DELETE" }
       )
 
@@ -177,7 +186,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/images/?event_id=${eventId}`
+        `${API_ORIGIN}/api/images/?event_id=${eventId}`
       )
 
       const data = await res.json()
@@ -198,7 +207,7 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/images/delete/${fileId}/`,
+        `${API_ORIGIN}/api/images/delete/${fileId}/`,
         { method: "DELETE" }
       )
 
@@ -231,7 +240,7 @@ export default function Admin() {
       formData.append("event_id", eventId)
       formData.append("uploaded_by", "admin")
 
-      const res = await fetch("http://127.0.0.1:8000/api/images/upload/", {
+      const res = await fetch(`${API_ORIGIN}/api/images/upload/`, {
         method: "POST",
         body: formData
       })
@@ -251,7 +260,7 @@ export default function Admin() {
   /* ---------------- POSTS ---------------- */
 
   const loadPosts = async () => {
-    const res = await fetch("http://127.0.0.1:8000/api/posts/")
+    const res = await fetch(`${API_ORIGIN}/api/posts/`)
     const data = await res.json()
     setPosts(data)
   }
@@ -266,7 +275,7 @@ export default function Admin() {
     formData.append("caption", postCaption)
     if (postImage) formData.append("image", postImage)
 
-    const res = await fetch("http://127.0.0.1:8000/api/posts/create/", {
+    const res = await fetch(`${API_ORIGIN}/api/posts/create/`, {
       method: "POST",
       body: formData
     })
@@ -281,7 +290,7 @@ export default function Admin() {
   }
 
   const deletePost = async (id) => {
-    await fetch(`http://127.0.0.1:8000/api/posts/delete/${id}/`, {
+    await fetch(`${API_ORIGIN}/api/posts/delete/${id}/`, {
       method: "DELETE"
     })
     loadPosts()
@@ -294,7 +303,7 @@ export default function Admin() {
     try {
 
       const res = await fetch(
-        "http://127.0.0.1:8000/api/newsletters/"
+        `${API_ORIGIN}/api/newsletters/`
       )
 
       const data = await res.json()
@@ -364,9 +373,9 @@ newsletterPdf
 
 const url = newsletterEditId
 
-? `http://127.0.0.1:8000/api/newsletters/edit/${newsletterEditId}/`
+? `${API_ORIGIN}/api/newsletters/edit/${newsletterEditId}/`
 
-: "http://127.0.0.1:8000/api/newsletters/upload/"
+: `${API_ORIGIN}/api/newsletters/upload/`
 
 
 const method =
@@ -467,7 +476,7 @@ try{
 
 const res = await fetch(
 
-`http://127.0.0.1:8000/api/newsletters/delete/${id}/`,
+`${API_ORIGIN}/api/newsletters/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -506,7 +515,7 @@ try{
 
 const res = await fetch(
 
-"http://127.0.0.1:8000/api/moments/"
+`${API_ORIGIN}/api/moments/`
 
 )
 
@@ -586,11 +595,11 @@ const url = momentEditId
 
 ?
 
-`http://127.0.0.1:8000/api/moments/edit/${momentEditId}/`
+`${API_ORIGIN}/api/moments/edit/${momentEditId}/`
 
 :
 
-"http://127.0.0.1:8000/api/moments/create/"
+`${API_ORIGIN}/api/moments/create/`
 
 
 const method = momentEditId
@@ -697,7 +706,7 @@ try{
 
 await fetch(
 
-`http://127.0.0.1:8000/api/moments/delete/${id}/`,
+`${API_ORIGIN}/api/moments/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -724,7 +733,7 @@ const loadSpotlights = async()=>{
 try{
 
 const res=await fetch(
-"http://127.0.0.1:8000/api/spotlight/"
+`${API_ORIGIN}/api/spotlight/`
 )
 
 const data=await res.json()
@@ -828,11 +837,11 @@ spotlightEditId
 
 ?
 
-`http://127.0.0.1:8000/api/spotlight/edit/${spotlightEditId}/`
+`${API_ORIGIN}/api/spotlight/edit/${spotlightEditId}/`
 
 :
 
-"http://127.0.0.1:8000/api/spotlight/upload/"
+`${API_ORIGIN}/api/spotlight/upload/`
 
 
 const method=
@@ -975,7 +984,7 @@ try{
 
 await fetch(
 
-`http://127.0.0.1:8000/api/spotlight/delete/${id}/`,
+`${API_ORIGIN}/api/spotlight/delete/${id}/`,
 
 {
 method:"DELETE"
@@ -1172,6 +1181,26 @@ e.target.value
 )
 }
 placeholder="Description"
+className="
+w-full p-3 rounded-xl
+border dark:text-black
+"
+/>
+
+<input
+type="date"
+value={date}
+onChange={(e)=>setDate(e.target.value)}
+className="
+w-full p-3 rounded-xl
+border dark:text-black
+"
+/>
+
+<input
+value={driveFolderId}
+onChange={(e)=>setDriveFolderId(e.target.value)}
+placeholder="Google Drive Folder ID"
 className="
 w-full p-3 rounded-xl
 border dark:text-black
@@ -1665,7 +1694,7 @@ n.cover
 
 :
 
-`http://127.0.0.1:8000${n.cover}`
+`${API_ORIGIN}${n.cover}`
 
 }
 className="
@@ -1745,7 +1774,7 @@ n.pdf
 
 :
 
-`http://127.0.0.1:8000${n.pdf}`
+`${API_ORIGIN}${n.pdf}`
 
 }
 target="_blank"
@@ -1953,7 +1982,7 @@ moment.cover_url
 
 :
 
-`http://127.0.0.1:8000${moment.cover_url}`
+`${API_ORIGIN}${moment.cover_url}`
 
 }
 className="
@@ -2245,7 +2274,7 @@ shadow-lg
 >
 
 <img
-src={`http://127.0.0.1:8000${s.poster}`}
+src={`${API_ORIGIN}${s.poster}`}
 className="
 w-full
 h-48

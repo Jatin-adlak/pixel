@@ -1,15 +1,3 @@
-insightface
-faiss-cpu
-fastapi
-uvicorn
-opencv-python
-numpy
-pillow
-tqdm
-streamlit
-requests
-scikit-learn
-flask
-requests
-face_recognition
-numpy
+# The face service shares the project-wide dependency list.
+# Install from the project root instead:  pip install -r requirements.txt
+-r ../requirements.txt

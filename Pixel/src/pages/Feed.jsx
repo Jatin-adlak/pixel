@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useState, useEffect } from "react"
 import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react"
 import { getPosts } from "../api/api"
@@ -58,7 +59,7 @@ return
 try{
 
 const res = await fetch(
-"http://127.0.0.1:8000/api/users/save-post/",
+`${API_ORIGIN}/api/users/save-post/`,
 {
 method:"POST",
 headers:{
@@ -120,7 +121,7 @@ try{
 
 // 🔥 UPDATE DATABASE
 await fetch(
-`http://127.0.0.1:8000/api/posts/like/${postId}/`,
+`${API_ORIGIN}/api/posts/like/${postId}/`,
 {
 method:"POST",
 headers:{
@@ -213,7 +214,7 @@ try{
 
 // 🔥 SAVE TO DATABASE
 await fetch(
-`http://127.0.0.1:8000/api/posts/comment/${postId}/`,
+`${API_ORIGIN}/api/posts/comment/${postId}/`,
 {
 method:"POST",
 headers:{
@@ -266,7 +267,7 @@ try{
 
 // 🔥 DELETE FROM DATABASE
 await fetch(
-`http://127.0.0.1:8000/api/posts/comment/delete/${postId}/${commentIndex}/`,
+`${API_ORIGIN}/api/posts/comment/delete/${postId}/${commentIndex}/`,
 {
 method:"DELETE"
 }

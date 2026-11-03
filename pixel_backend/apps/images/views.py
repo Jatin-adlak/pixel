@@ -107,11 +107,11 @@ def fetch_images(request):
 
         event_id = str(event_id)
 
-        print("📌 Fetching images for event:", event_id)
+        print("Fetching images for event:", event_id)
 
         images = get_images(event_id)
 
-        print("📸 Images fetched:", len(images))
+        print("Images fetched:", len(images))
 
         result = [
             {
@@ -125,7 +125,7 @@ def fetch_images(request):
         return Response(result, status=status.HTTP_200_OK)
 
     except Exception as e:
-        print("❌ Fetch error:", e)
+        print("Fetch error:", e)
         return Response(
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

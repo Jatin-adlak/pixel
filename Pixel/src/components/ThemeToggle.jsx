@@ -34,13 +34,16 @@ return(
 
 <button
 onClick={toggleTheme}
-className="fixed bottom-6 right-6 z-[99999] hover:scale-110 transition"
+className="fixed z-[99999] hover:scale-110 transition
+           right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] p-3 rounded-full
+           bg-white/85 dark:bg-neutral-900/85 backdrop-blur shadow-lg border border-neutral-200 dark:border-neutral-700
+           md:right-6 md:bottom-6 md:p-0 md:bg-transparent md:dark:bg-transparent md:shadow-none md:border-0 md:backdrop-blur-none"
 >
 
 {dark ? (
-<Sun size={26} className="text-white"/>
+<Sun size={22} className="text-white"/>
 ) : (
-<Moon size={26} className="text-black"/>
+<Moon size={22} className="text-black"/>
 )}
 
 </button>

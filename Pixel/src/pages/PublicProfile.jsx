@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import ImageViewer from "./ImageViewer"
@@ -28,7 +29,7 @@ const loadProfile = async ()=>{
 try{
 
 const res = await fetch(
-`http://127.0.0.1:8000/api/users/public/${email}/`
+`${API_ORIGIN}/api/users/public/${email}/`
 )
 
 const data = await res.json()
@@ -48,7 +49,7 @@ currentUser?.email
 )
 
 const postsRes = await fetch(
-"http://127.0.0.1:8000/api/posts/"
+`${API_ORIGIN}/api/posts/`
 )
 
 const allPosts = await postsRes.json()
@@ -90,7 +91,7 @@ return
 try{
 
 const res = await fetch(
-"http://127.0.0.1:8000/api/users/follow-request/",
+`${API_ORIGIN}/api/users/follow-request/`,
 {
 method:"POST",
 headers:{
@@ -160,7 +161,7 @@ const unfollow = async () => {
 try{
 
 await fetch(
-"http://127.0.0.1:8000/api/users/unfollow/",
+`${API_ORIGIN}/api/users/unfollow/`,
 {
 method:"POST",
 headers:{

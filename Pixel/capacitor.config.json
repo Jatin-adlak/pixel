@@ -1,0 +1,9 @@
+{
+  "appId": "com.pixel.app",
+  "appName": "Pixel",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}

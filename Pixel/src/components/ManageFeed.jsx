@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useState, useEffect } from "react"
 
 export default function ManageFeed(){
@@ -10,7 +11,7 @@ const [posts,setPosts] = useState([])
 /* LOAD POSTS */
 
 const loadPosts = async () => {
-const res = await fetch("http://localhost:8000/api/posts/")
+const res = await fetch(`${API_ORIGIN}/api/posts/`)
 const data = await res.json()
 setPosts(data)
 }
@@ -39,7 +40,7 @@ formData.append("image", image)
 formData.append("title", title)
 formData.append("caption", caption)
 
-await fetch("http://localhost:8000/api/posts/",{
+await fetch(`${API_ORIGIN}/api/posts/`,{
 method:"POST",
 body:formData
 })
@@ -56,7 +57,7 @@ loadPosts()
 /* DELETE */
 
 const deletePost = async (id)=>{
-await fetch(`http://localhost:8000/api/posts/${id}/`,{
+await fetch(`${API_ORIGIN}/api/posts/${id}/`,{
 method:"DELETE"
 })
 loadPosts()

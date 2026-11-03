@@ -1,308 +1,486 @@
-from rest_framework.decorators import api_view
+
+import time
+
+import jwt
+from django.conf import settings
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .services import create_user, get_users, toggle_saved_image, toggle_saved_post, unfollow_user, update_username as update_username_service, send_follow_request, accept_follow_request, reject_follow_request, remove_follower as remove_follower_service
+
 from config.db import users_collection
+from .services import (
+    create_user,
+    get_users,
+    toggle_saved_image,
+    toggle_saved_post,
+    unfollow_user,
+    update_username as update_username_service,
+    send_follow_request,
+    accept_follow_request,
+    reject_follow_request,
+    remove_follower as remove_follower_service,
+)
 
 
-# 🔐 ALLOWED DOMAINS
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
 ALLOWED_DOMAINS = ["sait.ac.in", "saip.ac.in"]
 
-# 🔥 ADMIN EMAILS
 ADMIN_EMAILS = [
     "kanishkk52@gmail.com",
     "altatrescue@gmail.com",
     "yashadlakpc@gmail.com",
-    "biku.patel45@gmail.com"
+    "biku.patel45@gmail.com",
 ]
 
 
-# 🔥 LOGIN / CREATE USER (SECURED)
-@api_view(['POST'])
+def _create_pixel_token(email, token_type, lifetime):
+    """Create a signed PIXEL JWT."""
+    now = int(time.time())
+
+    return jwt.encode(
+        {
+            "sub": email,
+            "type": token_type,
+            "iat": now,
+            "exp": now + lifetime,
+        },
+        settings.SECRET_KEY,
+        algorithm="HS256",
+    )
+
+
+def _serialize_user(user):
+    """Return the user fields expected by the React frontend."""
+    email = (user.get("email") or "").strip().lower()
+    admin_emails = {
+        item.strip().lower() for item in ADMIN_EMAILS
+    }
+
+    return {
+        "_id": str(user["_id"]),
+        "email": email,
+        "name": user.get("name", ""),
+        "picture": user.get("picture", ""),
+        "domain": user.get("domain", ""),
+        "ring": user.get("ring", ""),
+        "isAdmin": email in admin_emails,
+        "saved_posts": user.get("saved_posts", []),
+        "saved_images": user.get("saved_images", []),
+        "followers": user.get("followers", []),
+        "following": user.get("following", []),
+        "follow_requests": user.get("follow_requests", []),
+    }
+
+
+# ============================================================
+# LOGIN WITH GOOGLE AND ISSUE PIXEL JWT TOKENS
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def login_user(request):
+    """
+    Accept a Google ID credential, verify it on the backend,
+    validate the user's email domain, and issue PIXEL JWTs.
+    """
+    credential = request.data.get("credential")
 
-    email = request.data.get("email")
-    name = request.data.get("name")
-    picture = request.data.get("picture")
-
-    # ❌ VALIDATION
-
-    if not email:
+    if not credential:
         return Response(
-            {"error":"Email is required"},
-            status=400
+            {"error": "Google credential is required."},
+            status=400,
         )
 
-    email = email.strip().lower()
+    google_client_id = getattr(
+        settings, "GOOGLE_CLIENT_ID", ""
+    )
 
+    if not google_client_id:
+        return Response(
+            {"error": "Google login is not configured on the server."},
+            status=500,
+        )
 
     try:
-
-        domain = email.split("@")[1]
-
-    except:
-
+        google_user = google_id_token.verify_oauth2_token(
+            credential,
+            google_requests.Request(),
+            google_client_id,
+        )
+    except Exception:
         return Response(
-            {"error":"Invalid email format"},
-            status=400
+            {"error": "Google credential is invalid or expired."},
+            status=401,
         )
 
-
-    # 🔒 ALLOW ADMIN OR DOMAIN USERS
-
-    admin_emails = [
-
-        x.strip().lower()
-
-        for x in ADMIN_EMAILS
-
-    ]
-
-    if (
-
-        email not in admin_emails
-
-        and
-
-        domain not in ALLOWED_DOMAINS
-
-    ):
-
+    if not google_user.get("email_verified"):
         return Response(
-            {"error":"Unauthorized domain"},
-            status=403
+            {"error": "Your Google email must be verified."},
+            status=403,
         )
 
+    email = (
+        google_user.get("email") or ""
+    ).strip().lower()
 
-    # 🔥 CREATE USER IF NOT EXISTS
+    if "@" not in email:
+        return Response(
+            {"error": "Invalid Google email."},
+            status=401,
+        )
 
+    domain = email.rsplit("@", 1)[1]
+
+    admin_emails = {
+        item.strip().lower() for item in ADMIN_EMAILS
+    }
+    allowed_domains = {
+        item.strip().lower() for item in ALLOWED_DOMAINS
+    }
+
+    is_admin = email in admin_emails
+
+    if not is_admin and domain not in allowed_domains:
+        return Response(
+            {"error": "Unauthorized domain."},
+            status=403,
+        )
+
+    name = google_user.get("name") or ""
+    picture = google_user.get("picture") or ""
+
+    if is_admin:
+        ring = "rainbow"
+    elif domain == "sait.ac.in":
+        ring = "#b55f22"
+    else:
+        ring = "blue-600"
+
+    # Create a user if one does not already exist.
     create_user({
-
-        "email":email,
-        "name":name,
-        "picture":picture
-
+        "email": email,
+        "name": name,
+        "picture": picture,
     })
 
-
-    # 🔥 ALWAYS FETCH LATEST USER
-
-    user = users_collection.find_one({
-
-        "email":email
-
+    existing_user = users_collection.find_one({
+        "email": email
     })
 
+    if not existing_user:
+        return Response(
+            {"error": "User creation failed."},
+            status=500,
+        )
+
+    # Preserve existing custom usernames and profile information.
+    profile_updates = {
+        "domain": domain,
+        "ring": ring,
+    }
+
+    if not existing_user.get("name") and name:
+        profile_updates["name"] = name
+
+    if not existing_user.get("picture") and picture:
+        profile_updates["picture"] = picture
+
+    users_collection.update_one(
+        {"email": email},
+        {"$set": profile_updates},
+    )
+
+    user = users_collection.find_one({"email": email})
 
     if not user:
-
         return Response(
-            {"error":"User creation failed"},
-            status=400
+            {"error": "User creation failed."},
+            status=500,
         )
 
-
-    # 🔥 ADMIN CHECK
-
-    is_admin = (
-
-        email in admin_emails
-
-    )
-
-    print(
-        "ADMIN STATUS:",
+    access = _create_pixel_token(
         email,
-        is_admin
+        "access",
+        getattr(
+            settings,
+            "JWT_ACCESS_TOKEN_LIFETIME_SECONDS",
+            900,
+        ),
     )
 
+    refresh = _create_pixel_token(
+        email,
+        "refresh",
+        getattr(
+            settings,
+            "JWT_REFRESH_TOKEN_LIFETIME_SECONDS",
+            604800,
+        ),
+    )
+
+    print("PIXEL LOGIN SUCCESS:", email, is_admin)
 
     return Response({
-
-        "_id":
-            str(user["_id"]),
-
-        "email":
-            user.get("email"),
-
-        "name":
-            user.get("name"),
-
-        "picture":
-            user.get("picture"),
-
-        "isAdmin":
-            is_admin,
-
-        "saved_posts":
-            user.get(
-                "saved_posts",
-                []
-            ),
-
-        "saved_images":
-            user.get(
-                "saved_images",
-                []
-            ),
-
-        "followers":
-            user.get(
-                "followers",
-                []
-            ),
-
-        "following":
-            user.get(
-                "following",
-                []
-            ),
-
-        "follow_requests":
-            user.get(
-                "follow_requests",
-                []
-            )
-
+        "user": _serialize_user(user),
+        "access": access,
+        "refresh": refresh,
     })
 
 
-# 🔥 FETCH ALL USERS
-@api_view(['GET'])
+# ============================================================
+# REFRESH ACCESS TOKEN
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def refresh_token(request):
+    """Issue a new access token from a valid refresh token."""
+    token = request.data.get("refresh")
+
+    if not token:
+        return Response(
+            {"error": "Refresh token is required."},
+            status=400,
+        )
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=["HS256"],
+            options={
+                "require": ["exp", "iat", "sub", "type"]
+            },
+        )
+    except jwt.ExpiredSignatureError:
+        return Response(
+            {"error": "Refresh token expired. Please log in again."},
+            status=401,
+        )
+    except jwt.InvalidTokenError:
+        return Response(
+            {"error": "Invalid refresh token."},
+            status=401,
+        )
+
+    if payload.get("type") != "refresh":
+        return Response(
+            {"error": "Refresh token required."},
+            status=401,
+        )
+
+    email = payload.get("sub")
+
+    if not email or not users_collection.find_one({
+        "email": email
+    }):
+        return Response(
+            {"error": "User no longer exists."},
+            status=401,
+        )
+
+    access = _create_pixel_token(
+        email,
+        "access",
+        getattr(
+            settings,
+            "JWT_ACCESS_TOKEN_LIFETIME_SECONDS",
+            900,
+        ),
+    )
+
+    return Response({"access": access})
+
+
+# ============================================================
+# FETCH USERS
+# ============================================================
+
+@api_view(["GET"])
 def fetch_users(request):
     return Response(get_users())
 
 
-# 🔥 UPDATE USERNAME (SECURED)
-@api_view(['POST'])
-def update_username(request):
+# ============================================================
+# UPDATE USERNAME
+# ============================================================
 
-    email = request.data.get("email")
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def update_username(request):
+    email = request.user.email
     username = request.data.get("username")
 
-    # ❌ VALIDATION
-    if not email or not username:
-        return Response({"error": "Email and username required"}, status=400)
+    if not username:
+        return Response(
+            {"error": "Username required"},
+            status=400,
+        )
 
-    if len(username.strip()) < 2:
-        return Response({"error": "Username too short"}, status=400)
+    username = username.strip()
 
-    # 🔒 CHECK USER EXISTS
+    if len(username) < 2:
+        return Response(
+            {"error": "Username too short"},
+            status=400,
+        )
+
     users = get_users()
-    exists = any(u["email"] == email for u in users)
+    exists = any(
+        (user.get("email") or "").lower() == email.lower()
+        for user in users
+    )
 
     if not exists:
-        return Response({"error": "User not found"}, status=404)
+        return Response(
+            {"error": "User not found"},
+            status=404,
+        )
 
-    # ✅ UPDATE
     user = update_username_service(email, username)
+
+    if not user:
+        return Response(
+            {"error": "Username update failed"},
+            status=400,
+        )
 
     return Response({
         "_id": str(user.get("_id")),
         "email": user.get("email"),
         "name": user.get("name"),
         "picture": user.get("picture"),
-        "isAdmin": email in ADMIN_EMAILS
+        "isAdmin": email.lower() in {
+            item.lower() for item in ADMIN_EMAILS
+        },
     })
 
-# 🔥 SAVE / UNSAVE POST
-@api_view(['POST'])
-def save_post(request):
 
-    email = request.data.get("email")
+# ============================================================
+# SAVE / UNSAVE POST
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def save_post(request):
+    email = request.user.email
     post_id = request.data.get("post_id")
 
-    result = toggle_saved_post(
-        email,
-        post_id
-    )
+    if not post_id:
+        return Response(
+            {"error": "post_id is required"},
+            status=400,
+        )
+
+    result = toggle_saved_post(email, post_id)
 
     if not result:
         return Response(
-            {"error":"User not found"},
-            status=404
+            {"error": "User not found"},
+            status=404,
         )
 
     return Response(result)
 
-# 🔥 SAVE / UNSAVE IMAGE
-@api_view(['POST'])
-def save_image(request):
 
-    email = request.data.get("email")
+# ============================================================
+# SAVE / UNSAVE IMAGE
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def save_image(request):
+    email = request.user.email
     image_url = request.data.get("image_url")
 
-    result = toggle_saved_image(
-        email,
-        image_url
-    )
+    if not image_url:
+        return Response(
+            {"error": "image_url is required"},
+            status=400,
+        )
+
+    result = toggle_saved_image(email, image_url)
 
     if not result:
         return Response(
-            {"error":"User not found"},
-            status=404
+            {"error": "User not found"},
+            status=404,
         )
 
     return Response(result)
 
-# 🔥 SEARCH USERS
-@api_view(['GET'])
+
+# ============================================================
+# SEARCH USERS
+# ============================================================
+
+@api_view(["GET"])
 def search_users(request):
-
     try:
-
         query = request.GET.get("q", "").strip()
 
         if not query:
             return Response([])
 
-        users = list(users_collection.find({
-            "$or": [
+        # Escape regex input to avoid interpreting user input
+        # as an arbitrary regular expression.
+        import re
 
-                {
-                    "name": {
-                        "$regex": query,
-                        "$options": "i"
-                    }
-                },
+        safe_query = re.escape(query)
 
-                {
-                    "email": {
-                        "$regex": query,
-                        "$options": "i"
-                    }
-                }
-
-            ]
-        }))
+        users = list(
+            users_collection.find({
+                "$or": [
+                    {
+                        "name": {
+                            "$regex": safe_query,
+                            "$options": "i",
+                        }
+                    },
+                    {
+                        "email": {
+                            "$regex": safe_query,
+                            "$options": "i",
+                        }
+                    },
+                ]
+            })
+        )
 
         result = []
 
         for user in users:
-
             result.append({
                 "_id": str(user["_id"]),
                 "name": user.get("name", ""),
                 "email": user.get("email", ""),
-                "picture": user.get("picture", "")
+                "picture": user.get("picture", ""),
             })
 
         return Response(result)
 
     except Exception as e:
-
-        print("❌ SEARCH USER ERROR:", str(e))
+        print("SEARCH USER ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to search users."},
+            status=500,
         )
 
 
-# 🔥 PUBLIC PROFILE
-@api_view(['GET'])
-def public_profile(request, email):
+# ============================================================
+# PUBLIC PROFILE
+# ============================================================
 
+@api_view(["GET"])
+def public_profile(request, email):
     try:
+        email = email.strip().lower()
 
         user = users_collection.find_one({
             "email": email
@@ -311,377 +489,287 @@ def public_profile(request, email):
         if not user:
             return Response(
                 {"error": "User not found"},
-                status=404
+                status=404,
             )
 
+        admin_emails = {
+            item.strip().lower() for item in ADMIN_EMAILS
+        }
+
         return Response({
-
             "_id": str(user["_id"]),
-
             "name": user.get("name", ""),
             "email": user.get("email"),
-
             "picture": user.get("picture"),
-
             "domain": user.get("domain"),
             "ring": user.get("ring"),
-
-            # 🔥 FIX
-            "isAdmin":
-                user.get("email")
-                in ADMIN_EMAILS,
-
-            # 🔥 SAVED
-            "saved_posts":
-                user.get("saved_posts", []),
-
-            "saved_images":
-                user.get("saved_images", []),
-
-            # 🔥 FOLLOW SYSTEM
-            "followers":
-                user.get("followers", []),
-
-            "following":
-                user.get("following", []),
-
-            "follow_requests":
-                user.get("follow_requests", []),
-
-            # 🔥 PRIVATE PROFILE
-            "private_profile":
-                user.get(
-                    "private_profile",
-                    True
-                )
-
+            "isAdmin": email in admin_emails,
+            "saved_posts": user.get("saved_posts", []),
+            "saved_images": user.get("saved_images", []),
+            "followers": user.get("followers", []),
+            "following": user.get("following", []),
+            "follow_requests": user.get("follow_requests", []),
+            "private_profile": user.get("private_profile", True),
         })
 
     except Exception as e:
-
-        print(
-            "❌ PUBLIC PROFILE ERROR:",
-            str(e)
-        )
+        print("PUBLIC PROFILE ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to fetch profile."},
+            status=500,
         )
 
-# 🔥 FOLLOW REQUEST
-@api_view(['POST'])
+
+# ============================================================
+# SEND FOLLOW REQUEST
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def follow_request(request):
-
     try:
-
-        print("📥 FOLLOW REQUEST BODY:", request.data)
-
-        sender = request.data.get("sender")
+        sender = request.user.email
         target = request.data.get("target")
 
-        print("👤 Sender:", sender)
-        print("🎯 Target:", target)
+        if not target:
+            return Response(
+                {"error": "Target user is required."},
+                status=400,
+            )
 
-        result = send_follow_request(
-            sender,
-            target
-        )
+        print("FOLLOW REQUEST:", sender, target)
 
-        print("✅ RESULT:", result)
+        result = send_follow_request(sender, target)
 
         if not result:
             return Response(
-                {"error":"Request failed"},
-                status=400
+                {"error": "Request failed"},
+                status=400,
             )
 
-        return Response({
-            "message":"Request sent"
-        })
+        return Response({"message": "Request sent"})
 
     except Exception as e:
-
-        print("❌ FOLLOW REQUEST ERROR:", str(e))
+        print("FOLLOW REQUEST ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to send follow request."},
+            status=500,
         )
 
 
-# 🔥 ACCEPT REQUEST
-@api_view(['POST'])
+# ============================================================
+# ACCEPT FOLLOW REQUEST
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def accept_request(request):
-
     try:
-
-        user_email = request.data.get("user_email")
+        user_email = request.user.email
         follower_email = request.data.get("follower_email")
 
-        print("ACCEPT:", user_email, follower_email)
+        if not follower_email:
+            return Response(
+                {"error": "Follower email is required."},
+                status=400,
+            )
 
         result = accept_follow_request(
             user_email,
-            follower_email
+            follower_email,
         )
 
         if not result:
             return Response(
-                {"error":"Accept failed"},
-                status=400
+                {"error": "Accept failed"},
+                status=400,
             )
 
-        return Response({
-            "message":"Accepted"
-        })
+        return Response({"message": "Accepted"})
 
     except Exception as e:
-
-        print("❌ ACCEPT ERROR:", str(e))
+        print("ACCEPT ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to accept follow request."},
+            status=500,
         )
 
 
-# 🔥 REJECT REQUEST
-@api_view(['POST'])
+# ============================================================
+# REJECT FOLLOW REQUEST
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def reject_request(request):
-
     try:
-
-        user_email = request.data.get("user_email")
+        user_email = request.user.email
         follower_email = request.data.get("follower_email")
 
-        print("REJECT:", user_email, follower_email)
+        if not follower_email:
+            return Response(
+                {"error": "Follower email is required."},
+                status=400,
+            )
 
         result = reject_follow_request(
             user_email,
-            follower_email
+            follower_email,
         )
 
         if not result:
             return Response(
-                {"error":"Reject failed"},
-                status=400
+                {"error": "Reject failed"},
+                status=400,
             )
 
-        return Response({
-            "message":"Rejected"
-        })
+        return Response({"message": "Rejected"})
 
     except Exception as e:
-
-        print("❌ REJECT ERROR:", str(e))
+        print("REJECT ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to reject follow request."},
+            status=500,
         )
 
 
-# 🔥 UNFOLLOW
-@api_view(['POST'])
+# ============================================================
+# UNFOLLOW USER
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def unfollow(request):
-
     try:
+        user_email = request.user.email
+        target_email = request.data.get("target_email")
 
-        user_email = request.data.get(
-            "user_email"
-        )
-
-        target_email = request.data.get(
-            "target_email"
-        )
+        if not target_email:
+            return Response(
+                {"error": "Target email is required."},
+                status=400,
+            )
 
         result = unfollow_user(
             user_email,
-            target_email
+            target_email,
         )
 
         if not result:
             return Response(
-                {"error":"Unfollow failed"},
-                status=400
+                {"error": "Unfollow failed"},
+                status=400,
             )
 
-        return Response({
-            "message":"Unfollowed"
-        })
+        return Response({"message": "Unfollowed"})
 
     except Exception as e:
-
-        print(
-            "❌ UNFOLLOW VIEW ERROR:",
-            str(e)
-        )
+        print("UNFOLLOW VIEW ERROR:", str(e))
 
         return Response(
-            {"error": str(e)},
-            status=500
+            {"error": "Unable to unfollow user."},
+            status=500,
         )
-    
-# 🔥 REMOVE FOLLOWER
-@api_view(['POST'])
+
+
+# ============================================================
+# REMOVE FOLLOWER
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def remove_follower(request):
+    user_email = request.user.email
+    follower_email = request.data.get("follower_email")
 
-    user_email = request.data.get(
-        "user_email"
-    )
-
-    follower_email = request.data.get(
-        "follower_email"
-    )
+    if not follower_email:
+        return Response(
+            {"error": "Follower email is required."},
+            status=400,
+        )
 
     result = remove_follower_service(
         user_email,
-        follower_email
+        follower_email,
     )
 
     if not result:
-
         return Response(
-            {"error":"Failed"},
-            status=400
+            {"error": "Failed to remove follower."},
+            status=400,
         )
 
-    return Response({
-        "message":"Removed"
-    })
+    return Response({"message": "Removed"})
 
-@api_view(['POST'])
+
+# ============================================================
+# UPDATE PROFILE
+# ============================================================
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_profile(request):
-
     try:
+        # Always use the authenticated identity, never the
+        # email supplied in the request body.
+        email = request.user.email
 
-        email = request.data.get("email")
-
-        existing = users_collection.find_one(
-            {"email":email}
-        )
-
-        if not existing:
-
-            return Response(
-                {"error":"User not found"},
-                status=404
-            )
-
-        name=(
-
-            request.data.get("name")
-
-            or existing.get(
-                "name",
-                ""
-            )
-
-        )
-
-        picture=(
-
-            request.data.get("picture")
-
-            or existing.get(
-                "picture",
-                ""
-            )
-
-        )
-
-        update_data={}
-
-        if name != existing.get("name"):
-
-            update_data["name"]=name
-
-        if picture != existing.get("picture"):
-
-            update_data["picture"]=picture
-
-
-        if update_data:
-
-            users_collection.update_one(
-
-                {"email":email},
-
-                {
-                    "$set":update_data
-                }
-
-            )
-
-
-        return Response({
-
-            "_id":
-                str(
-                    existing["_id"]
-                ),
-
-            "email":
-                email,
-
-            "name":
-                name,
-
-            "picture":
-                picture,
-
-            # 🔥 FIX
-            "isAdmin":
-                email
-                in ADMIN_EMAILS,
-
-            "saved_posts":
-                existing.get(
-                    "saved_posts",
-                    []
-                ),
-
-            "saved_images":
-                existing.get(
-                    "saved_images",
-                    []
-                ),
-
-            "followers":
-                existing.get(
-                    "followers",
-                    []
-                ),
-
-            "following":
-                existing.get(
-                    "following",
-                    []
-                ),
-
-            "follow_requests":
-                existing.get(
-                    "follow_requests",
-                    []
-                )
-
+        existing = users_collection.find_one({
+            "email": email
         })
 
+        if not existing:
+            return Response(
+                {"error": "User not found"},
+                status=404,
+            )
+
+        name = request.data.get("name")
+        picture = request.data.get("picture")
+
+        update_data = {}
+
+        if name is not None:
+            name = name.strip()
+
+            if len(name) < 2:
+                return Response(
+                    {"error": "Name must contain at least 2 characters."},
+                    status=400,
+                )
+
+            if name != existing.get("name"):
+                update_data["name"] = name
+
+        if picture is not None and picture != existing.get("picture"):
+            update_data["picture"] = picture
+
+        if update_data:
+            users_collection.update_one(
+                {"email": email},
+                {"$set": update_data},
+            )
+
+        updated_user = users_collection.find_one({
+            "email": email
+        })
+
+        if not updated_user:
+            return Response(
+                {"error": "User not found"},
+                status=404,
+            )
+
+        return Response(_serialize_user(updated_user))
+
     except Exception as e:
-
-        print(
-
-            "PROFILE UPDATE ERROR:",
-
-            str(e)
-
-        )
+        print("PROFILE UPDATE ERROR:", str(e))
 
         return Response(
-
-            {"error":str(e)},
-
-            status=500
-
+            {"error": "Unable to update profile."},
+            status=500,
         )

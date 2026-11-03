@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 
@@ -32,7 +33,7 @@ const handleContinue = async () => {
 
   try {
 
-    await fetch("http://127.0.0.1:8000/api/users/update-username/", {
+    await fetch(`${API_ORIGIN}/api/users/update-username/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

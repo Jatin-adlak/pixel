@@ -1,3 +1,4 @@
+import { API_ORIGIN } from "../config/env"
 import { useEffect, useState } from "react"
 import { getNewsletters } from "../api/api"
 
@@ -61,7 +62,7 @@ return url
 
 }
 
-return `http://127.0.0.1:8000${url}`
+return `${API_ORIGIN}${url}`
 
 }
 

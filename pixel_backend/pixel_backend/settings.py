@@ -12,10 +12,22 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
+
+from dotenv import load_dotenv
+
+# Windows consoles default to cp1252; emoji in print() otherwise crash views.
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +39,10 @@ SECRET_KEY = 'django-insecure-%go_46aqruzlp)s9!f$6mbow1pg*lo31foy4%j$0=%v$6^=ne(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Comma-separated in .env, e.g. ALLOWED_HOSTS=api.your-domain.com
+# Default includes 10.0.2.2 so the Android emulator can reach this server.
+_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,10.0.2.2")
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
 
 
 # Application definition
@@ -88,7 +103,24 @@ WSGI_APPLICATION = 'pixel_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+# Service-account JSON lives only on the server. Share the Drive folder
+# with the service account email before photos will appear in the gallery.
+_google_sa = os.getenv(
+    "GOOGLE_SERVICE_ACCOUNT_FILE",
+    "credentials/google-service-account.json",
+)
+GOOGLE_SERVICE_ACCOUNT_FILE = (
+    _google_sa
+    if os.path.isabs(_google_sa)
+    else str(BASE_DIR / _google_sa)
+)
 
 
 # Password validation
@@ -138,3 +170,24 @@ MEDIA_ROOT=BASE_DIR/"media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Google OAuth
+# Set GOOGLE_CLIENT_ID in pixel_backend/.env to override. The fallback is the public
+# web client ID that the React app already ships with (it is not a secret).
+GOOGLE_CLIENT_ID = (
+    os.getenv("GOOGLE_CLIENT_ID", "").strip()
+    or "578954072006-aas3viqv21ho7hc2gvg64ibpac1ljsmr.apps.googleusercontent.com"
+)
+
+# PIXEL JWT configuration
+JWT_ACCESS_TOKEN_LIFETIME_SECONDS = 15 * 60
+JWT_REFRESH_TOKEN_LIFETIME_SECONDS = 7 * 24 * 60 * 60
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.users.authentication.MongoJWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+}

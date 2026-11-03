@@ -38,7 +38,7 @@ relative
 z-10
 max-w-7xl
 mx-auto
-px-8
+px-5 md:px-8
 ">
 
 {/* Header */}
@@ -263,7 +263,10 @@ storytelling and teamwork.
 <div className="
 grid
 grid-cols-3
-gap-5
+gap-3 sm:gap-5
+[&>div]:p-3 sm:[&>div]:p-6
+[&_h2]:text-[clamp(1rem,5vw,1.875rem)] [&_h2]:whitespace-nowrap
+[&_p]:text-xs sm:[&_p]:text-sm
 ">
 
 <div className="

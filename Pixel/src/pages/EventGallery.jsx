@@ -1,284 +1,229 @@
-import { useParams, useNavigate } from "react-router-dom"
+
+import { useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import ImageViewer from "./ImageViewer"
-import { getImages } from "../api/api"
+import { getEventGallery } from "../api/api"
 
-export default function EventGallery(){
+export default function EventGallery() {
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("pixelUser"))
+    } catch {
+      return null
+    }
+  })()
 
-  const user = JSON.parse(localStorage.getItem("pixelUser"))
-  const navigate = useNavigate()
-  const { id } = useParams()
+  const { eventSlug } = useParams()
 
-  const [images,setImages] = useState([])
-  const [viewer,setViewer] = useState(null)
-  const [searching,setSearching] = useState(false)
-
-  /* 🔥 LOAD IMAGES */
+  const [event, setEvent] = useState(null)
+  const [photos, setPhotos] = useState([])
+  const [viewer, setViewer] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [downloading, setDownloading] = useState({})
 
   useEffect(() => {
-
-    if(!id){
-      console.log("❌ Event ID is undefined")
+    if (!eventSlug) {
+      setError("Invalid event")
+      setLoading(false)
       return
     }
 
-    const loadImages = async () => {
+    let cancelled = false
+
+    const loadGallery = async () => {
       try {
+        setLoading(true)
+        setError("")
 
-        console.log("📡 Fetching images for:", id)
+        const data = await getEventGallery(eventSlug)
 
-        const data = await getImages(id)
+        if (cancelled) return
 
-        const formatted = (data || [])
-          .map(img => {
-            if (typeof img === "string") return img
-            if (img?.url) return img.url
-            return null
-          })
-          .filter(Boolean)
-
-        setImages(formatted)
-
+        setEvent(data)
+        setPhotos(Array.isArray(data.photos) ? data.photos : [])
       } catch (err) {
-        console.error("❌ Error fetching images:", err)
-        setImages([])
-      }
-    }
-
-    loadImages()
-
-  }, [id])
-
-
-  /* ============================================================
-     🔥 ORIGINAL FIND MY PHOTOS FUNCTIONALITY
-
-     TEMPORARILY COMMENTED OUT.
-
-     KEEPING THIS FUNCTION IN ITS ORIGINAL POSITION SO IT CAN
-     EASILY BE ENABLED AGAIN LATER.
-
-     TO ENABLE:
-     - Uncomment this complete function.
-     - Replace the temporary Coming Soon function below.
-     ============================================================ */
-
-
-  /*
-  const handleFindMyPhotos = async () => {
-
-    if(!user){
-      alert("Login required")
-      return
-    }
-
-    if(!id){
-      alert("Invalid event")
-      return
-    }
-
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-
-    input.onchange = async (e) => {
-
-      const file = e.target.files[0]
-      if(!file) return
-
-      try {
-
-        setSearching(true)
-
-        const formData = new FormData()
-        formData.append("image", file)
-
-        const res = await fetch(
-          `http://127.0.0.1:8000/api/face/find/${id}/`,
-          {
-            method: "POST",
-            body: formData
-          }
-        )
-
-        if (!res.ok) {
-          const errText = await res.text()
-          console.error("❌ FACE API ERROR:", errText)
-          alert("Error finding photos")
-          return
+        if (!cancelled) {
+          console.error("Error fetching gallery:", err)
+          setError(err.message || "Could not load this gallery")
+          setPhotos([])
         }
-
-        const data = await res.json()
-
-        if(!data?.matchedImages || data.matchedImages.length === 0){
-          alert("No matching photos found")
-          return
-        }
-
-        const formatted = data.matchedImages
-          .map(img => typeof img === "string" ? img : img?.url)
-          .filter(Boolean)
-
-        setImages(formatted)
-
-      } catch(err){
-        console.error("❌ FIND ERROR:", err)
-        alert("Error finding photos")
       } finally {
-        setSearching(false)
+        if (!cancelled) setLoading(false)
       }
-
     }
 
-    input.click()
-  }
-  */
+    loadGallery()
 
+    return () => {
+      cancelled = true
+    }
+  }, [eventSlug])
 
-  /* ============================================================
-     🔥 TEMPORARY FIND MY PHOTOS POPUP
-
-     THIS TEMPORARY CODE CAN BE REPLACED WITH THE ORIGINAL
-     FUNCTIONALITY ABOVE WHEN "FIND MY PHOTOS" IS ENABLED.
-
-     JUST REMOVE THIS FUNCTION AND USE:
-
-     onClick={handleFindMyPhotos}
-
-     INSTEAD OF:
-
-     onClick={handleFindMyPhotosComingSoon}
-     ============================================================ */
+  // Keep both URLs so the viewer can use the preview first.
+  const imageUrls = photos.map((photo) => ({
+    preview: photo.thumbnail || photo.full_size,
+    full: photo.full_size || photo.thumbnail,
+    name: photo.name || "photo.jpg",
+  }))
 
   const handleFindMyPhotosComingSoon = () => {
-
     alert(
       "📸 Find My Photos\n\n" +
       "This feature is coming soon!\n\n" +
       "We are working on bringing AI-powered photo finding to PIXEL."
     )
-
   }
 
-  /* ============================================================
-     🔥 END OF TEMPORARY FIND MY PHOTOS POPUP
+  const handleDownload = async (photo, index) => {
+    const imageUrl = photo.full_size || photo.thumbnail
 
-     WHEN THE ORIGINAL FUNCTIONALITY IS READY, REMOVE/COMMENT
-     THIS POPUP FUNCTION AND ENABLE handleFindMyPhotos ABOVE.
-     ============================================================ */
+    if (!imageUrl) {
+      alert("Image URL is unavailable.")
+      return
+    }
 
+    setDownloading((previous) => ({
+      ...previous,
+      [index]: true,
+    }))
 
-  return(
+    try {
+      const response = await fetch(imageUrl)
 
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+
+      anchor.href = objectUrl
+      anchor.download = photo.name || "photo.jpg"
+
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+
+      // Keep the temporary URL alive long enough for the download to start.
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+    } catch (err) {
+      console.error("Download error:", err)
+      // Direct navigation fallback if the remote server blocks fetch/CORS.
+      window.open(imageUrl, "_blank", "noopener,noreferrer")
+    } finally {
+      setDownloading((previous) => ({
+        ...previous,
+        [index]: false,
+      }))
+    }
+  }
+
+  return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-
       {/* HEADER */}
+      <div className="max-w-6xl mx-auto px-6 pt-24 flex justify-between items-start gap-4">
+        <div>
+          <h1 className="text-2xl font-headersfont">
+            {event?.title || "Event Photos"}
+          </h1>
 
-      <div className="max-w-6xl mx-auto px-6 pt-24 flex justify-between items-center">
+          {event?.date && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {event.date}
+            </p>
+          )}
 
-        <h1 className="text-2xl font-headersfont">
-          Event Photos
-        </h1>
+          {event?.description && (
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 max-w-3xl">
+              {event.description}
+            </p>
+          )}
+        </div>
 
         {user && (
           <button
             onClick={handleFindMyPhotosComingSoon}
-            className="px-4 py-2 rounded-3xl bg-blue-600 text-white text-sm hover:bg-blue-700 transition font-buttonsfont"
+            className="px-4 py-2 rounded-3xl bg-blue-600 text-white text-sm hover:bg-blue-700 transition font-buttonsfont shrink-0"
           >
-            {searching ? "Searching..." : "Find My Photos"}
+            Find My Photos
           </button>
         )}
-
       </div>
 
-      {/* IMAGES */}
-
-      <div className="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-        {images.length === 0 ? (
+      {/* PHOTO GRID */}
+      <div className="max-w-6xl mx-auto px-6 mt-10 pb-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {loading ? (
+          <p className="text-gray-500 col-span-full text-center">
+            Loading gallery…
+          </p>
+        ) : error ? (
+          <p className="text-red-500 col-span-full text-center">
+            {error}
+          </p>
+        ) : photos.length === 0 ? (
           <p className="text-gray-500 col-span-full text-center">
             No images found for this event.
           </p>
         ) : (
+          photos.map((photo, i) => (
+            <div
+              key={photo.id || i}
+              className="relative group overflow-hidden rounded-lg bg-neutral-900"
+            >
+              <button
+                type="button"
+                onClick={() => user && setViewer(i)}
+                className="block w-full cursor-pointer"
+                aria-label={`View ${photo.name || "event photo"}`}
+              >
+                <img
+                  src={photo.thumbnail || photo.full_size}
+                  alt={photo.name || "Event photo"}
+                  loading={i < 4 ? "eager" : "lazy"}
+                  decoding="async"
+                  className={`rounded-lg object-cover w-full h-64 ${
+                    !user ? "blur-sm brightness-75" : ""
+                  }`}
+                  onError={(e) => {
+                    // Avoid repeatedly retrying a failing image URL.
+                    e.currentTarget.onerror = null
+                    e.currentTarget.style.visibility = "hidden"
+                  }}
+                />
+              </button>
 
-          images.map((img,i)=>(
-
-            <div key={i} className="relative group cursor-pointer">
-
-              <img
-                src={img}
-                onClick={()=> user && setViewer(i)}
-                className={`rounded-lg object-cover w-full h-64
-                ${!user ? "blur-sm brightness-75" : ""}
-                `}
-                onError={(e)=>{
-                  e.target.src = none
-                }}
-              />
-
-              {/* LOGIN OVERLAY */}
               {!user && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg pointer-events-none">
                   <p className="text-white text-sm font-buttonsfont">
                     Login to View
                   </p>
                 </div>
               )}
 
-              {/* DOWNLOAD */}
               {user && (
                 <button
-                  onClick={async ()=>{
-                    try{
-                      const res = await fetch(img)
-                      const blob = await res.blob()
-
-                      const url = window.URL.createObjectURL(blob)
-
-                      const a = document.createElement("a")
-                      a.href = url
-                      a.download = "photo.jpg"
-                      document.body.appendChild(a)
-                      a.click()
-                      a.remove()
-
-                      window.URL.revokeObjectURL(url)
-                    }catch(err){
-                      console.error("Download error:", err)
-                    }
-                  }}
-                  className="
-                  absolute top-2 right-2
-                  bg-black/70 text-white text-xs px-3 py-1
-                  rounded-3xl
-                  opacity-100 md:opacity-0 md:group-hover:opacity-100
-                  transition
-                  "
+                  onClick={() => handleDownload(photo, i)}
+                  disabled={downloading[i]}
+                  className="absolute top-2 right-2 bg-black/70 text-white text-xs px-3 py-1 rounded-3xl opacity-100 md:opacity-0 md:group-hover:opacity-100 transition disabled:opacity-70"
                 >
-                  Download
+                  {downloading[i] ? "Downloading..." : "Download"}
                 </button>
               )}
-
             </div>
-
           ))
-
         )}
-
       </div>
 
-      {/* VIEWER */}
-
-      {viewer !== null && images[viewer] && (
+      {/* FULL-SIZE VIEWER */}
+      {viewer !== null && imageUrls[viewer] && (
         <ImageViewer
-          images={images}
+          images={imageUrls}
           index={viewer}
           setViewer={setViewer}
         />
       )}
-
     </div>
-
   )
-
 }

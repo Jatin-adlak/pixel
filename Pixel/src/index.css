@@ -127,3 +127,51 @@ body {
     display: none !important;
   }
 }
+
+/* ================= MOBILE / NATIVE APP ================= */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Keep native-app feel: no rubber-band bounce / pull-to-refresh */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* Phones & small tablets */
+@media (max-width: 767px) {
+
+  /* room for the bottom tab bar (class is set by MobileTabBar when visible) */
+  body.has-tabbar {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+
+  body { background: #fff; }
+  .dark body { background: #000; }
+
+  /* iOS zooms into inputs smaller than 16px */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* full-screen sections should ignore the collapsing browser/URL bar */
+  .h-screen   { height: 100svh; }
+  .min-h-screen { min-height: 100svh; }
+
+  /* Hero headline was a fixed 72px and overflowed small screens */
+  .intro-text {
+    font-size: clamp(34px, 11vw, 56px);
+    -webkit-text-stroke-width: 1px;
+  }
+}
+
+/* Tighter horizontal rhythm on very small phones */
+@media (max-width: 380px) {
+  .intro-text { font-size: 34px; }
+}
